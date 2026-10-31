@@ -1,133 +1,307 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-sapphire">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS &bull; Offline Assistant & Schedule Center</title>
+  <title>JARVIS &bull; Autonomous Schedule & Voice Engine</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  
   <style>
-    :root {
-      --bg: #0b0f19;
-      --card-bg: #111827;
-      --border-col: #1f2937;
+    /* ==========================================================================
+       THEME DEFINITIONS: Polymorphism, Neumorphism & Glassmorphism
+       ========================================================================== */
+
+    /* 1. Sapphire Midnight (Cobalt Glassmorphism + Inset Glow) */
+    html.theme-sapphire {
+      --bg-base: #060b18;
+      --bg-ambient: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.28) 0%, transparent 75%);
+      --surface-card: rgba(12, 22, 48, 0.70);
+      --surface-card-sub: rgba(8, 15, 33, 0.85);
+      --surface-border: rgba(99, 102, 241, 0.22);
+      --surface-glow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+      --surface-shadow: 0 12px 30px -10px rgba(2, 6, 23, 0.7);
+      --input-bg: rgba(6, 11, 24, 0.85);
+      --input-inset: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+      --accent-primary: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
-    body { background-color: var(--bg); }
+
+    /* 2. Soft Slate Neumorphic (Tactile Extruded Dual-Tone Physics) */
+    html.theme-neumorphic {
+      --bg-base: #1e2638;
+      --bg-ambient: none;
+      --surface-card: #1e2638;
+      --surface-card-sub: #171d2b;
+      --surface-border: rgba(255, 255, 255, 0.05);
+      --surface-glow: none;
+      --surface-shadow: 8px 8px 20px #111620, -8px -8px 20px #2b3650;
+      --input-bg: #171d2b;
+      --input-inset: inset 4px 4px 8px #0f131c, inset -4px -4px 8px #232c42;
+      --accent-primary: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    /* 3. Monochrome Stealth (Onyx Black, Refractive Specular Edges) */
+    html.theme-stealth {
+      --bg-base: #09090b;
+      --bg-ambient: none;
+      --surface-card: #121215;
+      --surface-card-sub: #0c0c0e;
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+      --surface-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.85);
+      --input-bg: #060608;
+      --input-inset: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+      --accent-primary: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.35);
+      --text-main: #ffffff;
+      --text-muted: #71717a;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: var(--bg-ambient);
+      color: var(--text-main);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .neo-card {
+      background-color: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      box-shadow: var(--surface-shadow), var(--surface-glow);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .neo-inset {
+      background-color: var(--input-bg);
+      box-shadow: var(--input-inset);
+      border: 1px solid var(--surface-border);
+    }
+
+    .neo-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .neo-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Pulse animation for voice waveform visualizer */
+    @keyframes wavePulse {
+      0%, 100% { height: 6px; }
+      50% { height: 26px; }
+    }
+
+    .wave-bar {
+      width: 3px;
+      border-radius: 9999px;
+      background-color: var(--accent-primary);
+      animation: wavePulse 1.2s ease-in-out infinite;
+    }
   </style>
 </head>
-<body class="text-slate-200 min-h-screen antialiased p-4 md:p-8">
-  <div class="max-w-6xl mx-auto space-y-6">
+<body class="min-h-screen antialiased p-4 md:p-8 flex flex-col items-center">
+  <div class="w-full max-w-6xl space-y-6">
     
-    <!-- Top Navigation / Header -->
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-extrabold text-2xl shadow-inner">
-          ⚡
+    <!-- ======================================================================
+         TOP BAR: Glassmorphic Floating Header & Multi-Theme Switcher
+         ====================================================================== -->
+    <header class="neo-card rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <!-- SVG Vector Monogram -->
+        <div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            JARVIS
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">SECURED</span>
-          </h1>
-          <p class="text-xs text-slate-400">Offline Personal Assistant & Schedule Engine &bull; Asia/Karachi (PKT)</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-white font-sans">JARVIS CORE</h1>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono tracking-wider font-semibold">
+              AUTONOMOUS
+            </span>
+          </div>
+          <p class="text-xs text-[var(--text-muted)] font-mono">Offline Schedule Engine &bull; Asia/Karachi (PKT)</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button onclick="triggerBriefing()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all">
-          <span>🔊</span>
-          <span>Play Spoken Briefing</span>
+      <!-- Controls: Theme Selector, Briefing Audio, Refresh -->
+      <div class="flex items-center gap-3 flex-wrap">
+        
+        <!-- Live Theme Switcher Pill -->
+        <div class="neo-inset rounded-xl p-1 flex items-center gap-1 text-xs font-medium">
+          <button onclick="setTheme('sapphire')" id="btn-theme-sapphire" class="px-2.5 py-1 rounded-lg transition-all text-indigo-400 bg-indigo-500/10">
+            Sapphire
+          </button>
+          <button onclick="setTheme('neumorphic')" id="btn-theme-neumorphic" class="px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white">
+            Neumorphic
+          </button>
+          <button onclick="setTheme('stealth')" id="btn-theme-stealth" class="px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white">
+            Stealth
+          </button>
+        </div>
+
+        <!-- Spoken Morning Briefing Button (SVG Speaker Icon) -->
+        <button onclick="triggerBriefing()" class="neo-btn px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>
+          </svg>
+          <span>Spoken Briefing</span>
         </button>
-        <button onclick="loadAll()" class="p-2 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-300 transition-all" title="Refresh">
-          🔄
+
+        <!-- Refresh Button -->
+        <button onclick="loadAll()" class="neo-btn p-2 rounded-xl neo-inset text-[var(--text-muted)] hover:text-white" title="Refresh">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
         </button>
       </div>
     </header>
 
-    <!-- Quick Add Row -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- ======================================================================
+         VOICE COCKPIT: Browser Mic Recording & Multi-Lingual Input
+         ====================================================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Quick Add / Voice Text Input -->
-      <div class="md:col-span-2 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-        <h2 class="text-sm font-semibold text-white flex items-center gap-2">
-          <span>✍️</span>
-          <span>Quick Capture (Roman Urdu or English)</span>
-        </h2>
-        <div class="flex gap-2">
-          <input id="quickInput" type="text" 
-            placeholder="e.g. 'kal subah 9 baje meeting with client' or 'parson shaam 6:30 dinner'" 
-            class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-          <button onclick="submitQuickTask()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md transition-all">
-            Parse & Add
+      <!-- Microphone Audio Capture & Text Box -->
+      <div class="lg:col-span-2 neo-card rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+            </svg>
+            <span>Voice & Temporal Capture (Roman-Urdu / English)</span>
+          </h2>
+          <span class="text-xs text-[var(--text-muted)] font-mono">Real-Time Parse</span>
+        </div>
+
+        <!-- Integrated Audio Recording Pill & Input -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          
+          <!-- Direct Browser Mic Button with Waveform Visualizer -->
+          <button id="micBtn" onclick="toggleMicRecording()" class="neo-btn px-4 py-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 flex items-center justify-center gap-2.5 text-xs font-semibold">
+            <div id="micIcon" class="w-4 h-4 text-indigo-400">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+              </svg>
+            </div>
+            <span id="micLabel">Record Mic</span>
+            <!-- Live Audio Visualizer Bars -->
+            <div id="waveContainer" class="hidden items-center gap-1 h-5">
+              <div class="wave-bar" style="animation-delay: 0.1s"></div>
+              <div class="wave-bar" style="animation-delay: 0.3s"></div>
+              <div class="wave-bar" style="animation-delay: 0.2s"></div>
+              <div class="wave-bar" style="animation-delay: 0.4s"></div>
+            </div>
+          </button>
+
+          <!-- Text Capture Field -->
+          <div class="relative flex-1">
+            <input id="quickInput" type="text" 
+              placeholder="Speak or type (e.g. 'kal subah 9 baje meeting with Atarion client')" 
+              class="w-full neo-inset rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all">
+          </div>
+
+          <!-- Parse & Add Button -->
+          <button onclick="submitQuickTask()" class="neo-btn px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md">
+            <span>Parse & Add</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
           </button>
         </div>
-        <div class="flex flex-wrap gap-2 text-xs text-slate-400">
-          <span class="self-center">Examples:</span>
-          <button onclick="fillExample('kal dopahar 2 baje submit project proposal')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">kal dopahar 2 baje...</button>
-          <button onclick="fillExample('parson shaam 7 baje family dinner')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">parson shaam 7 baje...</button>
-          <button onclick="fillExample('aaj raat 10 baje review budget')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">aaj raat 10 baje...</button>
+
+        <!-- Fast Example Chips -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs text-[var(--text-muted)] pt-1">
+          <span class="text-slate-500">Quick Test:</span>
+          <button onclick="fillExample('kal subah 9 baje client ke sath meeting schedule kardo')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">kal subah 9 baje...</button>
+          <button onclick="fillExample('parson shaam 6:30 baje team dinner')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">parson shaam 6:30...</button>
+          <button onclick="fillExample('aaj raat 10 baje review budget')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">aaj raat 10 baje...</button>
+          <button onclick="fillExample('kal project proposal submit karna hai')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">kal proposal (ambiguous time)...</button>
         </div>
       </div>
 
-      <!-- System Health Card -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+      <!-- Telemetry & Hardware Cockpit -->
+      <div class="neo-card rounded-2xl p-6 space-y-3">
         <h2 class="text-sm font-semibold text-white flex items-center gap-2">
-          <span>🖥️</span>
-          <span>Hardware & Engine</span>
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+          </svg>
+          <span>Hardware & Profile</span>
         </h2>
-        <div id="sysInfo" class="text-xs space-y-2 text-slate-300">
-          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
-            <span class="text-slate-400">Profile:</span>
-            <span id="profileVal" class="font-mono text-indigo-400">dual_pascal</span>
+        <div class="text-xs space-y-2.5 text-slate-300">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
+            <span class="text-[var(--text-muted)]">Active Profile:</span>
+            <span id="profileVal" class="font-mono text-indigo-400 font-medium">dual_pascal</span>
           </div>
-          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
-            <span class="text-slate-400">Timezone:</span>
-            <span class="font-mono text-emerald-400">Asia/Karachi</span>
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
+            <span class="text-[var(--text-muted)]">Timezone Anchor:</span>
+            <span class="font-mono text-emerald-400 font-medium">Asia/Karachi (PKT)</span>
           </div>
-          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
-            <span class="text-slate-400">Ollama Status:</span>
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
+            <span class="text-[var(--text-muted)]">Ollama LLM Engine:</span>
             <span id="ollamaStatus" class="font-mono text-amber-400">Checking...</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-[var(--text-muted)]">CalDAV Radicale:</span>
+            <span class="font-mono text-indigo-400 font-medium">Sync Ready</span>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Main Grid: Staging Queue vs Today's Schedule -->
+    <!-- ======================================================================
+         SPLIT DASHBOARD: Staged Review Queue vs Confirmed Agenda Timeline
+         ====================================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- Staging / Review Queue -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <!-- Left Column: Staged Voice Items (Review & AI Recommendations) -->
+      <div class="neo-card rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
-              <span>🎙️</span>
-              <span>Staged Voice Items (Review & Recommendations)</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <span>Staged Voice Queue (Pending Review)</span>
             </h2>
-            <p class="text-xs text-slate-400">Review AI recommendations before final calendar sync</p>
+            <p class="text-xs text-[var(--text-muted)]">Review schedule recommendations before final sync</p>
           </div>
-          <span id="pendingBadge" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">0 Pending</span>
+          <span id="pendingBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono font-medium">
+            0 Pending
+          </span>
         </div>
 
-        <div id="pendingContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-          <div class="text-center py-10 text-slate-500 text-xs">No pending voice memos awaiting review.</div>
+        <div id="pendingContainer" class="space-y-3.5 max-h-[520px] overflow-y-auto pr-1">
+          <div class="text-center py-14 text-slate-500 text-xs font-mono">No voice memos awaiting confirmation.</div>
         </div>
       </div>
 
-      <!-- Confirmed Schedule / Agenda -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <!-- Right Column: Confirmed Schedule Timeline -->
+      <div class="neo-card rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
-              <span>📅</span>
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
               <span>Confirmed Calendar & Agenda</span>
             </h2>
-            <p class="text-xs text-slate-400">Stored in SQLite & synced to Radicale (DAVx5)</p>
+            <p class="text-xs text-[var(--text-muted)]">Synced with SQLite and Radicale CalDAV</p>
           </div>
-          <span id="confirmedBadge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">0 Scheduled</span>
+          <span id="confirmedBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-medium">
+            0 Scheduled
+          </span>
         </div>
 
-        <div id="confirmedContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-          <div class="text-center py-10 text-slate-500 text-xs">No scheduled tasks yet.</div>
+        <div id="confirmedContainer" class="space-y-3.5 max-h-[520px] overflow-y-auto pr-1">
+          <div class="text-center py-14 text-slate-500 text-xs font-mono">No scheduled items on the calendar.</div>
         </div>
       </div>
 
@@ -135,8 +309,11 @@
 
   </div>
 
+  <!-- ======================================================================
+       INTERACTIVE JAVASCRIPT: Logic, Voice Upload, Theme Engine
+       ====================================================================== -->
   <script>
-    // Strict HTML escaping to eliminate XSS
+    // Strict HTML entity escaping to eliminate XSS
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -147,6 +324,92 @@
         .replace(/'/g, '&#039;');
     }
 
+    // 1. Theme Switcher
+    function setTheme(theme) {
+      document.documentElement.className = `theme-${theme}`;
+      ['sapphire', 'neumorphic', 'stealth'].forEach(t => {
+        const btn = document.getElementById(`btn-theme-${t}`);
+        if (t === theme) {
+          btn.className = "px-2.5 py-1 rounded-lg transition-all text-indigo-400 bg-indigo-500/10 font-semibold";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white";
+        }
+      });
+      localStorage.setItem('jarvis_theme', theme);
+    }
+
+    const savedTheme = localStorage.getItem('jarvis_theme') || 'sapphire';
+    setTheme(savedTheme);
+
+    // 2. Browser Audio Microphone Recording
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    async function toggleMicRecording() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording();
+      }
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          uploadAudioBlob(audioBlob);
+          stream.getTracks().forEach(t => t.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+
+        document.getElementById('micLabel').textContent = "Stop Recording";
+        document.getElementById('micBtn').className = "neo-btn px-4 py-2.5 rounded-xl border border-rose-500/40 bg-rose-500/20 text-rose-300 flex items-center justify-center gap-2.5 text-xs font-semibold animate-pulse";
+        document.getElementById('waveContainer').classList.remove('hidden');
+        document.getElementById('waveContainer').classList.add('flex');
+      } catch (err) {
+        alert("Microphone permission denied or not supported by browser.");
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        document.getElementById('micLabel').textContent = "Record Mic";
+        document.getElementById('micBtn').className = "neo-btn px-4 py-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 flex items-center justify-center gap-2.5 text-xs font-semibold";
+        document.getElementById('waveContainer').classList.remove('flex');
+        document.getElementById('waveContainer').classList.add('hidden');
+      }
+    }
+
+    async function uploadAudioBlob(blob) {
+      const formData = new FormData();
+      formData.append("file", blob, `voice_memo_${Date.now()}.webm`);
+
+      try {
+        const res = await fetch('/api/audio/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        loadAll();
+      } catch (err) {
+        console.error("Upload error:", err);
+      }
+    }
+
+    // 3. Data Fetching and Rendering
     async function loadAll() {
       await Promise.all([loadTasks(), loadStatus()]);
     }
@@ -184,7 +447,7 @@
     function renderPending(list) {
       const el = document.getElementById('pendingContainer');
       if (!list.length) {
-        el.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No pending voice memos awaiting review.</div>';
+        el.innerHTML = '<div class="text-center py-14 text-slate-500 text-xs font-mono">No voice memos awaiting confirmation.</div>';
         return;
       }
 
@@ -196,34 +459,56 @@
         const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : escapeHtml(t.raw_due_text || 'No time set');
 
         return `
-          <div class="border border-slate-800 rounded-xl p-4 bg-slate-950/60 space-y-3 hover:border-slate-700 transition-all">
+          <div class="neo-inset rounded-xl p-4 space-y-3 border border-slate-800/80 hover:border-slate-700 transition-all">
             <div class="flex items-start justify-between gap-2">
-              <div>
+              <div class="space-y-0.5">
                 <div class="font-medium text-sm text-white">${safeTitle}</div>
-                ${safeTranscript ? `<div class="text-xs text-slate-400 italic mt-0.5">"${safeTranscript}"</div>` : ''}
+                ${safeTranscript ? `<div class="text-xs text-[var(--text-muted)] italic">"${safeTranscript}"</div>` : ''}
               </div>
-              <span class="text-xs px-2 py-0.5 rounded font-mono uppercase ${t.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-slate-800 text-slate-400'}">${escapeHtml(t.priority)}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono uppercase font-semibold ${t.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-slate-800/80 text-slate-400'}">${escapeHtml(t.priority)}</span>
             </div>
 
-            <!-- Recommendation & Clarification Alert Box -->
+            <!-- Recommendation Alert Block (SVG Icons) -->
             ${(safeClarification || safeRecommendation) ? `
-              <div class="p-2.5 rounded-lg bg-indigo-950/40 border border-indigo-900/50 text-xs space-y-1">
-                ${safeClarification ? `<div class="text-amber-300 font-medium">⚠️ Question: ${safeClarification}</div>` : ''}
-                ${safeRecommendation ? `<div class="text-indigo-300">💡 Suggestion: ${safeRecommendation}</div>` : ''}
+              <div class="p-3 rounded-xl bg-indigo-950/40 border border-indigo-900/50 text-xs space-y-1.5">
+                ${safeClarification ? `
+                  <div class="flex items-center gap-1.5 text-amber-300 font-medium">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span>${safeClarification}</span>
+                  </div>
+                ` : ''}
+                ${safeRecommendation ? `
+                  <div class="flex items-center gap-1.5 text-indigo-300">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    <span>${safeRecommendation}</span>
+                  </div>
+                ` : ''}
               </div>
             ` : ''}
 
             <div class="flex items-center gap-2 text-xs text-indigo-400 font-mono">
-              <span>⏰</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
               <span>${safeDue}</span>
             </div>
 
-            <div class="flex items-center gap-2 pt-1 border-t border-slate-800/60 justify-end">
-              <button onclick="confirmTask(${t.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm">
-                Confirm & Sync
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80 justify-end">
+              <button onclick="confirmTask(${t.id})" class="neo-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Confirm & Sync</span>
               </button>
-              <button onclick="rejectTask(${t.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-all">
-                Reject
+              <button onclick="rejectTask(${t.id})" class="neo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700/80 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>Dismiss</span>
               </button>
             </div>
           </div>
@@ -234,23 +519,30 @@
     function renderConfirmed(list) {
       const el = document.getElementById('confirmedContainer');
       if (!list.length) {
-        el.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No scheduled tasks yet.</div>';
+        el.innerHTML = '<div class="text-center py-14 text-slate-500 text-xs font-mono">No scheduled items on the calendar.</div>';
         return;
       }
 
       el.innerHTML = list.map(t => {
         const safeTitle = escapeHtml(t.title);
-        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : 'No date';
+        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : 'No date set';
         return `
-          <div class="border border-slate-800 rounded-xl p-3.5 bg-slate-950/40 flex items-center justify-between gap-3">
+          <div class="neo-inset rounded-xl p-3.5 flex items-center justify-between gap-3 border border-slate-800/80">
             <div class="space-y-1">
               <div class="text-sm font-medium text-slate-200">${safeTitle}</div>
-              <div class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
-                <span>📅</span>
+              <div class="text-xs text-[var(--text-muted)] font-mono flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
                 <span>${safeDue}</span>
               </div>
             </div>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Confirmed</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Synced</span>
+            </span>
           </div>
         `;
       }).join('');
@@ -288,7 +580,7 @@
     async function triggerBriefing() {
       const res = await fetch('/api/briefing', { method: 'POST' });
       const data = await res.json();
-      alert(`Spoken Briefing:\n\n${data.text}`);
+      alert(`Spoken Morning Briefing:\n\n${data.text}`);
     }
 
     loadAll();

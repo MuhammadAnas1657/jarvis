@@ -1,9 +1,10 @@
 """FastAPI application for Jarvis Control Center and Review Queue."""
 
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import requests
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -12,11 +13,13 @@ from jarvis.briefing import DailyBriefing
 from jarvis.config import load_config
 from jarvis.extract import TaskExtractor
 from jarvis.store import TaskStore
+from jarvis.stt import SpeechToText
 
 
 app = FastAPI(title="JARVIS Control Center", version="0.1.0")
 
 store = TaskStore()
+stt = SpeechToText()
 extractor = TaskExtractor()
 briefing_engine = DailyBriefing(store=store)
 action_mgr = ActionManager(store=store)
@@ -89,6 +92,44 @@ async def quick_add_task(req: QuickAddRequest):
         created_ids.append(t_id)
 
     return {"created_count": len(created_ids), "ids": created_ids}
+
+
+@app.post("/api/audio/upload")
+async def upload_audio_memo(file: UploadFile = File(...)):
+    inbox = config.get_abs_inbox_dir()
+    inbox.mkdir(parents=True, exist_ok=True)
+    filename = f"browser_{int(time.time())}_{file.filename}"
+    file_path = inbox / filename
+
+    content = await file.read()
+    file_path.write_bytes(content)
+
+    # Transcribe and extract immediately
+    stt_res = stt.transcribe(str(file_path))
+    transcript = stt_res.get("text", "").strip()
+
+    tasks = extractor.extract_tasks(transcript) if transcript else []
+    created_ids = []
+    for item in tasks:
+        t_id = store.add_task(
+            title=item["title"],
+            description=item.get("description", ""),
+            original_transcript=transcript,
+            raw_due_text=item.get("raw_due_text", ""),
+            due_datetime=item.get("due_datetime"),
+            priority=item.get("priority", "normal"),
+            status="pending_review",
+            clarification_question=item.get("clarification_question"),
+            recommendation=item.get("recommendation")
+        )
+        created_ids.append(t_id)
+
+    return {
+        "filename": filename,
+        "transcript": transcript,
+        "tasks": tasks,
+        "created_ids": created_ids
+    }
 
 
 @app.post("/api/briefing")

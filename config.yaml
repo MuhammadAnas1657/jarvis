@@ -1,0 +1,18 @@
+profile: dual_pascal   # dual_pascal | rtx3060
+timezone: Asia/Karachi
+inbox_dir: ./inbox
+db_path: ./data/jarvis.db
+
+profiles:
+  dual_pascal:
+    stt: {model: medium, compute_type: int8, cuda_device: 1}   # GTX 1050 Ti
+    llm: {model: "qwen2.5:7b-instruct-q4_K_M", cuda_device: 0} # GTX 1060
+  rtx3060:
+    stt: {model: large-v3, compute_type: int8_float16, cuda_device: 0}
+    llm: {model: "qwen2.5:14b-instruct-q4_K_M", cuda_device: 0}
+
+ollama_url: http://localhost:11434
+caldav: {url: "http://localhost:5232", user: jarvis, password: change-me}
+ntfy: {url: "http://localhost:8080", topic: jarvis-reminders}
+tts: {engine: piper, language: en}
+

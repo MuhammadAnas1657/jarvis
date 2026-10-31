@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS &bull; Offline Assistant & Schedule Center</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --border-col: #1f2937;
+    }
+    body { background-color: var(--bg); }
+  </style>
+</head>
+<body class="text-slate-200 min-h-screen antialiased p-4 md:p-8">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Top Navigation / Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-extrabold text-2xl shadow-inner">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            JARVIS
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">SECURED</span>
+          </h1>
+          <p class="text-xs text-slate-400">Offline Personal Assistant & Schedule Engine &bull; Asia/Karachi (PKT)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="triggerBriefing()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all">
+          <span>🔊</span>
+          <span>Play Spoken Briefing</span>
+        </button>
+        <button onclick="loadAll()" class="p-2 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-300 transition-all" title="Refresh">
+          🔄
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Add Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Quick Add / Voice Text Input -->
+      <div class="md:col-span-2 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+          <span>✍️</span>
+          <span>Quick Capture (Roman Urdu or English)</span>
+        </h2>
+        <div class="flex gap-2">
+          <input id="quickInput" type="text" 
+            placeholder="e.g. 'kal subah 9 baje meeting with client' or 'parson shaam 6:30 dinner'" 
+            class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          <button onclick="submitQuickTask()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md transition-all">
+            Parse & Add
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+          <span class="self-center">Examples:</span>
+          <button onclick="fillExample('kal dopahar 2 baje submit project proposal')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">kal dopahar 2 baje...</button>
+          <button onclick="fillExample('parson shaam 7 baje family dinner')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">parson shaam 7 baje...</button>
+          <button onclick="fillExample('aaj raat 10 baje review budget')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300">aaj raat 10 baje...</button>
+        </div>
+      </div>
+
+      <!-- System Health Card -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+        <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+          <span>🖥️</span>
+          <span>Hardware & Engine</span>
+        </h2>
+        <div id="sysInfo" class="text-xs space-y-2 text-slate-300">
+          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+            <span class="text-slate-400">Profile:</span>
+            <span id="profileVal" class="font-mono text-indigo-400">dual_pascal</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+            <span class="text-slate-400">Timezone:</span>
+            <span class="font-mono text-emerald-400">Asia/Karachi</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+            <span class="text-slate-400">Ollama Status:</span>
+            <span id="ollamaStatus" class="font-mono text-amber-400">Checking...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Main Grid: Staging Queue vs Today's Schedule -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Staging / Review Queue -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <span>🎙️</span>
+              <span>Staged Voice Items (Review & Recommendations)</span>
+            </h2>
+            <p class="text-xs text-slate-400">Review AI recommendations before final calendar sync</p>
+          </div>
+          <span id="pendingBadge" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">0 Pending</span>
+        </div>
+
+        <div id="pendingContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+          <div class="text-center py-10 text-slate-500 text-xs">No pending voice memos awaiting review.</div>
+        </div>
+      </div>
+
+      <!-- Confirmed Schedule / Agenda -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <span>📅</span>
+              <span>Confirmed Calendar & Agenda</span>
+            </h2>
+            <p class="text-xs text-slate-400">Stored in SQLite & synced to Radicale (DAVx5)</p>
+          </div>
+          <span id="confirmedBadge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">0 Scheduled</span>
+        </div>
+
+        <div id="confirmedContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+          <div class="text-center py-10 text-slate-500 text-xs">No scheduled tasks yet.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Strict HTML escaping to eliminate XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function loadAll() {
+      await Promise.all([loadTasks(), loadStatus()]);
+    }
+
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        document.getElementById('profileVal').textContent = data.profile || 'dual_pascal';
+        document.getElementById('ollamaStatus').textContent = data.ollama_online ? 'Online' : 'Offline (Rule Fallback)';
+        document.getElementById('ollamaStatus').className = data.ollama_online ? 'font-mono text-emerald-400' : 'font-mono text-amber-400';
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const res = await fetch('/api/tasks');
+        const tasks = await res.json();
+
+        const pending = tasks.filter(t => t.status === 'pending_review');
+        const confirmed = tasks.filter(t => t.status === 'confirmed' || t.status === 'scheduled');
+
+        document.getElementById('pendingBadge').textContent = `${pending.length} Pending`;
+        document.getElementById('confirmedBadge').textContent = `${confirmed.length} Scheduled`;
+
+        renderPending(pending);
+        renderConfirmed(confirmed);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderPending(list) {
+      const el = document.getElementById('pendingContainer');
+      if (!list.length) {
+        el.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No pending voice memos awaiting review.</div>';
+        return;
+      }
+
+      el.innerHTML = list.map(t => {
+        const safeTitle = escapeHtml(t.title);
+        const safeTranscript = escapeHtml(t.original_transcript);
+        const safeClarification = escapeHtml(t.clarification_question);
+        const safeRecommendation = escapeHtml(t.recommendation);
+        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : escapeHtml(t.raw_due_text || 'No time set');
+
+        return `
+          <div class="border border-slate-800 rounded-xl p-4 bg-slate-950/60 space-y-3 hover:border-slate-700 transition-all">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-medium text-sm text-white">${safeTitle}</div>
+                ${safeTranscript ? `<div class="text-xs text-slate-400 italic mt-0.5">"${safeTranscript}"</div>` : ''}
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded font-mono uppercase ${t.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-slate-800 text-slate-400'}">${escapeHtml(t.priority)}</span>
+            </div>
+
+            <!-- Recommendation & Clarification Alert Box -->
+            ${(safeClarification || safeRecommendation) ? `
+              <div class="p-2.5 rounded-lg bg-indigo-950/40 border border-indigo-900/50 text-xs space-y-1">
+                ${safeClarification ? `<div class="text-amber-300 font-medium">⚠️ Question: ${safeClarification}</div>` : ''}
+                ${safeRecommendation ? `<div class="text-indigo-300">💡 Suggestion: ${safeRecommendation}</div>` : ''}
+              </div>
+            ` : ''}
+
+            <div class="flex items-center gap-2 text-xs text-indigo-400 font-mono">
+              <span>⏰</span>
+              <span>${safeDue}</span>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1 border-t border-slate-800/60 justify-end">
+              <button onclick="confirmTask(${t.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm">
+                Confirm & Sync
+              </button>
+              <button onclick="rejectTask(${t.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-all">
+                Reject
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderConfirmed(list) {
+      const el = document.getElementById('confirmedContainer');
+      if (!list.length) {
+        el.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No scheduled tasks yet.</div>';
+        return;
+      }
+
+      el.innerHTML = list.map(t => {
+        const safeTitle = escapeHtml(t.title);
+        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : 'No date';
+        return `
+          <div class="border border-slate-800 rounded-xl p-3.5 bg-slate-950/40 flex items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="text-sm font-medium text-slate-200">${safeTitle}</div>
+              <div class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+                <span>📅</span>
+                <span>${safeDue}</span>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Confirmed</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function confirmTask(id) {
+      await fetch(`/api/tasks/${id}/confirm`, { method: 'POST' });
+      loadAll();
+    }
+
+    async function rejectTask(id) {
+      await fetch(`/api/tasks/${id}/reject`, { method: 'POST' });
+      loadAll();
+    }
+
+    async function submitQuickTask() {
+      const input = document.getElementById('quickInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      await fetch('/api/tasks/quick-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+
+      input.value = '';
+      loadAll();
+    }
+
+    function fillExample(txt) {
+      document.getElementById('quickInput').value = txt;
+    }
+
+    async function triggerBriefing() {
+      const res = await fetch('/api/briefing', { method: 'POST' });
+      const data = await res.json();
+      alert(`Spoken Briefing:\n\n${data.text}`);
+    }
+
+    loadAll();
+    setInterval(loadAll, 10000);
+  </script>
+</body>
+</html>

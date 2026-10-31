@@ -1,0 +1,13 @@
+faster-whisper
+ollama
+pydantic>=2
+pyyaml
+watchdog
+dateparser
+fastapi
+uvicorn
+caldav
+apscheduler
+requests
+pytest
+

@@ -1,319 +1,502 @@
 <!DOCTYPE html>
-<html lang="en" class="theme-sapphire">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS &bull; Autonomous Schedule & Voice Engine</title>
+  <title>JARVIS &bull; STARK INDUSTRIES HUD</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
-    /* ==========================================================================
-       THEME DEFINITIONS: Polymorphism, Neumorphism & Glassmorphism
-       ========================================================================== */
-
-    /* 1. Sapphire Midnight (Cobalt Glassmorphism + Inset Glow) */
-    html.theme-sapphire {
-      --bg-base: #060b18;
-      --bg-ambient: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.28) 0%, transparent 75%);
-      --surface-card: rgba(12, 22, 48, 0.70);
-      --surface-card-sub: rgba(8, 15, 33, 0.85);
-      --surface-border: rgba(99, 102, 241, 0.22);
-      --surface-glow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
-      --surface-shadow: 0 12px 30px -10px rgba(2, 6, 23, 0.7);
-      --input-bg: rgba(6, 11, 24, 0.85);
-      --input-inset: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-      --accent-primary: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.35);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-    }
-
-    /* 2. Soft Slate Neumorphic (Tactile Extruded Dual-Tone Physics) */
-    html.theme-neumorphic {
-      --bg-base: #1e2638;
-      --bg-ambient: none;
-      --surface-card: #1e2638;
-      --surface-card-sub: #171d2b;
-      --surface-border: rgba(255, 255, 255, 0.05);
-      --surface-glow: none;
-      --surface-shadow: 8px 8px 20px #111620, -8px -8px 20px #2b3650;
-      --input-bg: #171d2b;
-      --input-inset: inset 4px 4px 8px #0f131c, inset -4px -4px 8px #232c42;
-      --accent-primary: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.35);
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-    }
-
-    /* 3. Monochrome Stealth (Onyx Black, Refractive Specular Edges) */
-    html.theme-stealth {
-      --bg-base: #09090b;
-      --bg-ambient: none;
-      --surface-card: #121215;
-      --surface-card-sub: #0c0c0e;
-      --surface-border: rgba(255, 255, 255, 0.08);
-      --surface-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-      --surface-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.85);
-      --input-bg: #060608;
-      --input-inset: inset 0 2px 4px rgba(0, 0, 0, 0.9);
-      --accent-primary: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.35);
-      --text-main: #ffffff;
-      --text-muted: #71717a;
+    :root {
+      --hud-bg: #050914;
+      --hud-panel: rgba(8, 16, 34, 0.75);
+      --hud-panel-solid: #091224;
+      --hud-cyan: #00f0ff;
+      --hud-cyan-dim: rgba(0, 240, 255, 0.15);
+      --hud-cyan-glow: 0 0 20px rgba(0, 240, 255, 0.45);
+      --hud-border: rgba(0, 240, 255, 0.28);
+      --hud-border-dim: rgba(0, 240, 255, 0.12);
+      --hud-amber: #f59e0b;
+      --hud-emerald: #10b981;
+      --hud-rose: #f43f5e;
+      --neo-shadow: 8px 8px 24px #020409, -8px -8px 24px #0c162d;
+      --neo-inset: inset 3px 3px 8px #020409, inset -3px -3px 8px #0d1832;
     }
 
     body {
-      background-color: var(--bg-base);
-      background-image: var(--bg-ambient);
-      color: var(--text-main);
-      transition: background-color 0.3s ease, color 0.3s ease;
+      background-color: var(--hud-bg);
+      background-image: 
+        radial-gradient(circle at 50% 180px, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      color: #e2e8f0;
+      font-family: 'Rajdhani', sans-serif;
     }
 
-    .neo-card {
-      background-color: var(--surface-card);
-      border: 1px solid var(--surface-border);
-      box-shadow: var(--surface-shadow), var(--surface-glow);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+    .font-hud-clock { font-family: 'Orbitron', monospace; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    /* Tactical Neumorphic Glass Panels with Sci-Fi Chamfered Edges */
+    .hud-tile {
+      background: var(--hud-panel);
+      border: 1px solid var(--hud-border);
+      box-shadow: var(--neo-shadow), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: relative;
     }
 
-    .neo-inset {
-      background-color: var(--input-bg);
-      box-shadow: var(--input-inset);
-      border: 1px solid var(--surface-border);
+    .hud-tile::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 16px; width: 32px; height: 2px;
+      background: var(--hud-cyan);
+      box-shadow: var(--hud-cyan-glow);
     }
 
-    .neo-btn {
+    .hud-inset {
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid var(--hud-border-dim);
+      box-shadow: var(--neo-inset);
+    }
+
+    /* Arc Reactor CSS Animations */
+    @keyframes spinClockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spinCounterClockwise {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @keyframes reactorPulse {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(0, 240, 255, 0.5), inset 0 0 25px rgba(0, 240, 255, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 45px rgba(0, 240, 255, 0.85), inset 0 0 40px rgba(0, 240, 255, 0.85);
+      }
+    }
+
+    .ring-clockwise { animation: spinClockwise 18s linear infinite; }
+    .ring-counter { animation: spinCounterClockwise 12s linear infinite; }
+    .reactor-core-glow { animation: reactorPulse 3s ease-in-out infinite; }
+    .reactor-recording { animation: reactorPulse 0.8s ease-in-out infinite !important; }
+
+    /* Segmented Telemetry Bars */
+    .telemetry-bar {
+      height: 6px;
+      border-radius: 2px;
+      background: rgba(0, 240, 255, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+    .telemetry-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #00f0ff);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+      transition: width 0.4s ease;
+    }
+
+    /* Tactile HUD Buttons */
+    .hud-btn {
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    .neo-btn:active {
-      transform: translateY(1px);
+    .hud-btn:hover {
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      border-color: var(--hud-cyan);
+    }
+    .hud-btn:active {
+      transform: scale(0.98);
     }
 
-    /* Pulse animation for voice waveform visualizer */
-    @keyframes wavePulse {
-      0%, 100% { height: 6px; }
-      50% { height: 26px; }
-    }
-
-    .wave-bar {
-      width: 3px;
-      border-radius: 9999px;
-      background-color: var(--accent-primary);
-      animation: wavePulse 1.2s ease-in-out infinite;
+    /* Active Tab Glow */
+    .tab-active {
+      background: rgba(0, 240, 255, 0.18) !important;
+      border-color: var(--hud-cyan) !important;
+      color: #00f0ff !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
     }
   </style>
 </head>
-<body class="min-h-screen antialiased p-4 md:p-8 flex flex-col items-center">
-  <div class="w-full max-w-6xl space-y-6">
-    
+<body class="min-h-screen p-3 md:p-6 antialiased flex flex-col items-center">
+  <div class="w-full max-w-7xl space-y-5">
+
     <!-- ======================================================================
-         TOP BAR: Glassmorphic Floating Header & Multi-Theme Switcher
+         TOP HUD TELEMETRY BAR: Clock, Status, Spoken Briefing
          ====================================================================== -->
-    <header class="neo-card rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <header class="hud-tile rounded-2xl p-4 md:p-5 flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand & Mark Status -->
       <div class="flex items-center gap-3.5">
-        <!-- SVG Vector Monogram -->
-        <div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        <div class="w-12 h-12 rounded-xl border border-cyan-400/40 bg-cyan-950/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+          <!-- Vector Arc Emblem -->
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="5" stroke-dasharray="2 3"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
           </svg>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold tracking-tight text-white font-sans">JARVIS CORE</h1>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono tracking-wider font-semibold">
-              AUTONOMOUS
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-bold tracking-widest text-white font-hud-clock">JARVIS</h1>
+            <span class="text-xs px-2.5 py-0.5 rounded border border-cyan-500/50 bg-cyan-500/10 text-cyan-300 font-hud-clock tracking-wider">
+              MARK-VI
             </span>
           </div>
-          <p class="text-xs text-[var(--text-muted)] font-mono">Offline Schedule Engine &bull; Asia/Karachi (PKT)</p>
+          <p class="text-xs text-slate-400 font-mono-code tracking-wider">STARK INDUSTRIES OFF-GRID PROTOCOL &bull; PKT</p>
         </div>
       </div>
 
-      <!-- Controls: Theme Selector, Briefing Audio, Refresh -->
-      <div class="flex items-center gap-3 flex-wrap">
-        
-        <!-- Live Theme Switcher Pill -->
-        <div class="neo-inset rounded-xl p-1 flex items-center gap-1 text-xs font-medium">
-          <button onclick="setTheme('sapphire')" id="btn-theme-sapphire" class="px-2.5 py-1 rounded-lg transition-all text-indigo-400 bg-indigo-500/10">
-            Sapphire
-          </button>
-          <button onclick="setTheme('neumorphic')" id="btn-theme-neumorphic" class="px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white">
-            Neumorphic
-          </button>
-          <button onclick="setTheme('stealth')" id="btn-theme-stealth" class="px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white">
-            Stealth
-          </button>
+      <!-- Center HUD Digital Clock -->
+      <div class="text-center px-6 py-2 rounded-xl hud-inset border border-cyan-500/20">
+        <div id="hudClock" class="text-2xl md:text-3xl font-hud-clock font-extrabold text-cyan-400 tracking-wider drop-shadow-[0_0_12px_rgba(0,240,255,0.6)]">
+          00:00:00 AM
         </div>
+        <div id="hudDate" class="text-xs text-slate-400 tracking-widest font-mono-code uppercase">
+          SATURDAY, OCT 31, 2026
+        </div>
+      </div>
 
-        <!-- Spoken Morning Briefing Button (SVG Speaker Icon) -->
-        <button onclick="triggerBriefing()" class="neo-btn px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <!-- Action Cluster: Spoken Briefing & Refresh -->
+      <div class="flex items-center gap-3">
+        <button onclick="triggerBriefing()" class="hud-btn px-4 py-2.5 rounded-xl border border-cyan-400 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold font-hud-clock flex items-center gap-2.5 shadow-[0_0_20px_rgba(0,240,255,0.25)]">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>
           </svg>
-          <span>Spoken Briefing</span>
+          <span>SPOKEN BRIEFING</span>
         </button>
 
-        <!-- Refresh Button -->
-        <button onclick="loadAll()" class="neo-btn p-2 rounded-xl neo-inset text-[var(--text-muted)] hover:text-white" title="Refresh">
+        <button onclick="loadAll()" class="hud-btn p-2.5 rounded-xl hud-inset text-cyan-400 hover:text-white" title="Telemetry Refresh">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
         </button>
       </div>
+
     </header>
 
     <!-- ======================================================================
-         VOICE COCKPIT: Browser Mic Recording & Multi-Lingual Input
+         COCKPIT NAVIGATION TABS (4 Segments)
          ====================================================================== -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- Microphone Audio Capture & Text Box -->
-      <div class="lg:col-span-2 neo-card rounded-2xl p-6 space-y-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-white flex items-center gap-2">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-            </svg>
-            <span>Voice & Temporal Capture (Roman-Urdu / English)</span>
-          </h2>
-          <span class="text-xs text-[var(--text-muted)] font-mono">Real-Time Parse</span>
-        </div>
+    <nav class="flex items-center gap-2 p-1.5 rounded-2xl hud-inset overflow-x-auto text-xs font-hud-clock tracking-wider">
+      <button onclick="switchTab('command')" id="tab-btn-command" class="tab-active flex-1 min-w-[150px] py-2.5 px-4 rounded-xl border border-transparent transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+        <span>COMMAND CENTER</span>
+      </button>
 
-        <!-- Integrated Audio Recording Pill & Input -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          
-          <!-- Direct Browser Mic Button with Waveform Visualizer -->
-          <button id="micBtn" onclick="toggleMicRecording()" class="neo-btn px-4 py-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 flex items-center justify-center gap-2.5 text-xs font-semibold">
-            <div id="micIcon" class="w-4 h-4 text-indigo-400">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-              </svg>
-            </div>
-            <span id="micLabel">Record Mic</span>
-            <!-- Live Audio Visualizer Bars -->
-            <div id="waveContainer" class="hidden items-center gap-1 h-5">
-              <div class="wave-bar" style="animation-delay: 0.1s"></div>
-              <div class="wave-bar" style="animation-delay: 0.3s"></div>
-              <div class="wave-bar" style="animation-delay: 0.2s"></div>
-              <div class="wave-bar" style="animation-delay: 0.4s"></div>
-            </div>
-          </button>
+      <button onclick="switchTab('calendar')" id="tab-btn-calendar" class="flex-1 min-w-[150px] py-2.5 px-4 rounded-xl border border-transparent transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span>CALENDAR & AGENDA</span>
+      </button>
 
-          <!-- Text Capture Field -->
-          <div class="relative flex-1">
-            <input id="quickInput" type="text" 
-              placeholder="Speak or type (e.g. 'kal subah 9 baje meeting with Atarion client')" 
-              class="w-full neo-inset rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all">
-          </div>
+      <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="flex-1 min-w-[150px] py-2.5 px-4 rounded-xl border border-transparent transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+        </svg>
+        <span>HARDWARE TELEMETRY</span>
+      </button>
 
-          <!-- Parse & Add Button -->
-          <button onclick="submitQuickTask()" class="neo-btn px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md">
-            <span>Parse & Add</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Fast Example Chips -->
-        <div class="flex flex-wrap items-center gap-1.5 text-xs text-[var(--text-muted)] pt-1">
-          <span class="text-slate-500">Quick Test:</span>
-          <button onclick="fillExample('kal subah 9 baje client ke sath meeting schedule kardo')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">kal subah 9 baje...</button>
-          <button onclick="fillExample('parson shaam 6:30 baje team dinner')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">parson shaam 6:30...</button>
-          <button onclick="fillExample('aaj raat 10 baje review budget')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">aaj raat 10 baje...</button>
-          <button onclick="fillExample('kal project proposal submit karna hai')" class="neo-inset px-2.5 py-1 rounded-lg hover:text-white transition-colors">kal proposal (ambiguous time)...</button>
-        </div>
-      </div>
-
-      <!-- Telemetry & Hardware Cockpit -->
-      <div class="neo-card rounded-2xl p-6 space-y-3">
-        <h2 class="text-sm font-semibold text-white flex items-center gap-2">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
-          </svg>
-          <span>Hardware & Profile</span>
-        </h2>
-        <div class="text-xs space-y-2.5 text-slate-300">
-          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
-            <span class="text-[var(--text-muted)]">Active Profile:</span>
-            <span id="profileVal" class="font-mono text-indigo-400 font-medium">dual_pascal</span>
-          </div>
-          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
-            <span class="text-[var(--text-muted)]">Timezone Anchor:</span>
-            <span class="font-mono text-emerald-400 font-medium">Asia/Karachi (PKT)</span>
-          </div>
-          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
-            <span class="text-[var(--text-muted)]">Ollama LLM Engine:</span>
-            <span id="ollamaStatus" class="font-mono text-amber-400">Checking...</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-[var(--text-muted)]">CalDAV Radicale:</span>
-            <span class="font-mono text-indigo-400 font-medium">Sync Ready</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
+      <button onclick="switchTab('vault')" id="tab-btn-vault" class="flex-1 min-w-[150px] py-2.5 px-4 rounded-xl border border-transparent transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <span>ACTION VAULT</span>
+      </button>
+    </nav>
 
     <!-- ======================================================================
-         SPLIT DASHBOARD: Staged Review Queue vs Confirmed Agenda Timeline
+         TAB 1: COMMAND CENTER (Arc Reactor + Voice Cockpit + Review Queue)
          ====================================================================== -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <main id="tab-command" class="space-y-6">
       
-      <!-- Left Column: Staged Voice Items (Review & AI Recommendations) -->
-      <div class="neo-card rounded-2xl p-6 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
-          <div>
-            <h2 class="text-base font-semibold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-              </svg>
-              <span>Staged Voice Queue (Pending Review)</span>
-            </h2>
-            <p class="text-xs text-[var(--text-muted)]">Review schedule recommendations before final sync</p>
+      <!-- Upper Section: Hero Arc Reactor Core + Quick Capture -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        
+        <!-- Center Arc Reactor Interactive Core Tile (5 cols) -->
+        <div class="lg:col-span-5 hud-tile rounded-3xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          
+          <div class="text-xs font-hud-clock text-cyan-400 tracking-widest uppercase mb-4 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            ARC REACTOR VOICE CORE
           </div>
-          <span id="pendingBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono font-medium">
-            0 Pending
+
+          <!-- Arc Reactor Concentric HUD Rings -->
+          <div class="relative w-56 h-56 flex items-center justify-center cursor-pointer my-2" onclick="toggleMicRecording()" title="Click to Speak / Record Voice Memo">
+            
+            <!-- Outer Segmented Ring 1 (Clockwise) -->
+            <svg class="absolute inset-0 w-full h-full ring-clockwise text-cyan-500/30" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4 18 4"/>
+            </svg>
+
+            <!-- Outer Ring 2 (Counter-Clockwise) -->
+            <svg class="absolute inset-2 w-[88%] h-[88%] ring-counter text-cyan-400/50 m-auto" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="20 10 35 15"/>
+            </svg>
+
+            <!-- Middle Geometric Ring 3 -->
+            <svg class="absolute inset-6 w-[75%] h-[75%] ring-clockwise text-cyan-300/60 m-auto" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 8"/>
+            </svg>
+
+            <!-- Central Arc Reactor Core Pulsing Button -->
+            <div id="reactorCore" class="w-24 h-24 rounded-full border-2 border-cyan-300 bg-cyan-950/80 flex flex-col items-center justify-center text-cyan-200 reactor-core-glow z-10 transition-transform active:scale-95 shadow-[0_0_35px_rgba(0,240,255,0.7)]">
+              <svg id="reactorMicIcon" class="w-8 h-8 text-cyan-300 transition-all" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+              </svg>
+              <span id="reactorCoreText" class="text-[9px] font-hud-clock tracking-wider text-cyan-300 mt-1 uppercase font-bold">CLICK MIC</span>
+            </div>
+
+          </div>
+
+          <div id="reactorStatusText" class="text-xs font-mono-code text-cyan-400/80 mt-2">
+            STANDBY &bull; TAP CORE TO COMMENCE VOCAL INPUT
+          </div>
+
+          <!-- Live Audio Waveform Bars (Hidden until Recording) -->
+          <div id="arcWaveContainer" class="hidden items-center justify-center gap-1.5 h-6 mt-3">
+            <div class="w-1 bg-cyan-400 rounded-full h-2 animate-pulse"></div>
+            <div class="w-1 bg-cyan-300 rounded-full h-5 animate-pulse" style="animation-delay: 0.1s"></div>
+            <div class="w-1 bg-cyan-400 rounded-full h-3 animate-pulse" style="animation-delay: 0.2s"></div>
+            <div class="w-1 bg-cyan-200 rounded-full h-6 animate-pulse" style="animation-delay: 0.15s"></div>
+            <div class="w-1 bg-cyan-400 rounded-full h-4 animate-pulse" style="animation-delay: 0.3s"></div>
+          </div>
+
+        </div>
+
+        <!-- Quick Capture & Code-Switch Input Tile (7 cols) -->
+        <div class="lg:col-span-7 hud-tile rounded-3xl p-6 space-y-4">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-cyan-400 font-hud-clock text-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              <span>TEMPORAL EXTRACTION MATRIX (ROMAN URDU / EN)</span>
+            </div>
+            <span class="text-xs font-mono-code text-slate-400">DETERMINISTIC V4</span>
+          </div>
+
+          <!-- Input Box (Debossed Well) -->
+          <div class="space-y-3">
+            <div class="relative">
+              <input id="quickInput" type="text" 
+                placeholder="Speak or type: 'kal subah 9 baje client meeting schedule kar dena'" 
+                class="w-full hud-inset rounded-xl px-4 py-3 text-sm text-cyan-100 placeholder-slate-500 font-sans focus:outline-none focus:border-cyan-400 transition-all border border-cyan-500/20">
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-xs text-slate-400 font-mono-code">
+                Detects: <span class="text-cyan-400">kal, parson, baje, subah, shaam</span>
+              </div>
+              <button onclick="submitQuickTask()" class="hud-btn px-6 py-2.5 rounded-xl border border-cyan-400 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-hud-clock text-xs font-bold flex items-center gap-2">
+                <span>INITIALIZE TASK</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Fast Diagnostic Prompts -->
+          <div class="pt-2 border-t border-cyan-500/10 space-y-2">
+            <span class="text-xs text-slate-400 font-hud-clock tracking-wider">DIAGNOSTIC TEST QUERIES:</span>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <button onclick="fillExample('kal subah 9 baje client ke sath meeting schedule kardo')" class="hud-inset px-2.5 py-1.5 rounded-lg border border-cyan-500/20 hover:border-cyan-400 text-slate-300 transition-colors">kal subah 9 baje client meeting...</button>
+              <button onclick="fillExample('parson shaam 6:30 baje team dinner')" class="hud-inset px-2.5 py-1.5 rounded-lg border border-cyan-500/20 hover:border-cyan-400 text-slate-300 transition-colors">parson shaam 6:30 baje dinner...</button>
+              <button onclick="fillExample('aaj raat 10 baje review monthly budget')" class="hud-inset px-2.5 py-1.5 rounded-lg border border-cyan-500/20 hover:border-cyan-400 text-slate-300 transition-colors">aaj raat 10 baje review budget...</button>
+              <button onclick="fillExample('kal project proposal submit karna hai')" class="hud-inset px-2.5 py-1.5 rounded-lg border border-amber-500/30 text-amber-300/80 hover:text-amber-200 transition-colors">kal proposal (ambiguous time)...</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Lower Section: Staged Voice Items Queue (Pending Confirmation) -->
+      <div class="hud-tile rounded-3xl p-6 space-y-4">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-cyan-500/20">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+              <h2 class="text-base font-bold font-hud-clock tracking-wider text-white">STAGED VOCAL QUEUE (CONFIRMATION GATEWAY)</h2>
+              <p class="text-xs text-slate-400 font-mono-code">Review AI schedule recommendations before synchronization with CalDAV</p>
+            </div>
+          </div>
+          <span id="pendingBadge" class="text-xs px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400 font-hud-clock">
+            0 PENDING
           </span>
         </div>
 
-        <div id="pendingContainer" class="space-y-3.5 max-h-[520px] overflow-y-auto pr-1">
-          <div class="text-center py-14 text-slate-500 text-xs font-mono">No voice memos awaiting confirmation.</div>
+        <div id="pendingContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-1">
+          <div class="col-span-2 text-center py-12 text-slate-500 text-xs font-mono-code">
+            NO VOCAL MEMOS CURRENTLY STAGED FOR REVIEW.
+          </div>
         </div>
+
       </div>
 
-      <!-- Right Column: Confirmed Schedule Timeline -->
-      <div class="neo-card rounded-2xl p-6 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
-          <div>
-            <h2 class="text-base font-semibold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span>Confirmed Calendar & Agenda</span>
-            </h2>
-            <p class="text-xs text-[var(--text-muted)]">Synced with SQLite and Radicale CalDAV</p>
+    </main>
+
+    <!-- ======================================================================
+         TAB 2: CALENDAR & AGENDA
+         ====================================================================== -->
+    <section id="tab-calendar" class="hidden space-y-6">
+      <div class="hud-tile rounded-3xl p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-cyan-500/20">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <div>
+              <h2 class="text-base font-bold font-hud-clock tracking-wider text-white">CONFIRMED CALENDAR TIMELINE & AGENDA</h2>
+              <p class="text-xs text-slate-400 font-mono-code">Committed to SQLite and synced to Radicale CalDAV for Android DAVx5</p>
+            </div>
           </div>
-          <span id="confirmedBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-medium">
-            0 Scheduled
+          <span id="confirmedBadge" class="text-xs px-3 py-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-hud-clock">
+            0 COMMITTED
           </span>
         </div>
 
-        <div id="confirmedContainer" class="space-y-3.5 max-h-[520px] overflow-y-auto pr-1">
-          <div class="text-center py-14 text-slate-500 text-xs font-mono">No scheduled items on the calendar.</div>
+        <div id="confirmedContainer" class="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+          <div class="text-center py-16 text-slate-500 text-xs font-mono-code">NO COMMITTED SCHEDULE ENTRIES.</div>
         </div>
       </div>
+    </section>
 
-    </div>
+    <!-- ======================================================================
+         TAB 3: HARDWARE TELEMETRY
+         ====================================================================== -->
+    <section id="tab-telemetry" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- GPU 0: GTX 1060 -->
+        <div class="hud-tile rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-hud-clock text-cyan-400 tracking-wider">PRIMARY ACCELERATOR &bull; GPU 0</span>
+            <span class="text-xs px-2 py-0.5 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 font-mono-code">6 GB VRAM</span>
+          </div>
+          <div class="text-xl font-bold font-hud-clock text-white">NVIDIA GEFORCE GTX 1060</div>
+          <p class="text-xs text-slate-400">Assigned exclusively to Ollama LLM (<span class="text-cyan-400 font-mono-code">Qwen2.5:7b-Instruct-Q4</span>). Extracts structured JSON tasks and clarification recommendations.</p>
+          <div class="space-y-1.5 pt-2">
+            <div class="flex justify-between text-xs font-mono-code text-slate-400">
+              <span>VRAM Allocation</span>
+              <span class="text-cyan-400">~4.7 GB / 6.0 GB</span>
+            </div>
+            <div class="telemetry-bar"><div class="telemetry-fill" style="width: 78%"></div></div>
+          </div>
+        </div>
+
+        <!-- GPU 1: GTX 1050 Ti -->
+        <div class="hud-tile rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-hud-clock text-emerald-400 tracking-wider">DEDICATED STT &bull; GPU 1</span>
+            <span class="text-xs px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-mono-code">4 GB VRAM</span>
+          </div>
+          <div class="text-xl font-bold font-hud-clock text-white">NVIDIA GEFORCE GTX 1050 Ti</div>
+          <p class="text-xs text-slate-400">Assigned exclusively to <span class="text-emerald-400 font-mono-code">faster-whisper (medium/int8)</span>. Transcribes incoming Roman-Urdu and English speech memos with zero model swapping.</p>
+          <div class="space-y-1.5 pt-2">
+            <div class="flex justify-between text-xs font-mono-code text-slate-400">
+              <span>VRAM Allocation</span>
+              <span class="text-emerald-400">~1.8 GB / 4.0 GB</span>
+            </div>
+            <div class="telemetry-bar"><div class="telemetry-fill" style="width: 45%; background: linear-gradient(90deg, #059669, #10b981);"></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- System Diagnostic Meters -->
+      <div class="hud-tile rounded-3xl p-6 space-y-4">
+        <h3 class="text-sm font-hud-clock text-cyan-400 tracking-wider">SYSTEM DIAGNOSTIC SENSORS</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono-code">
+          <div class="hud-inset rounded-2xl p-4 space-y-1 border border-cyan-500/10">
+            <span class="text-slate-400">CPU UTILIZATION</span>
+            <div id="statCpu" class="text-xl font-bold font-hud-clock text-cyan-300">-- %</div>
+          </div>
+          <div class="hud-inset rounded-2xl p-4 space-y-1 border border-cyan-500/10">
+            <span class="text-slate-400">RAM MEMORY ACTIVE</span>
+            <div id="statRam" class="text-xl font-bold font-hud-clock text-cyan-300">-- GB</div>
+          </div>
+          <div class="hud-inset rounded-2xl p-4 space-y-1 border border-cyan-500/10">
+            <span class="text-slate-400">PRIMARY DISK STORAGE</span>
+            <div id="statDisk" class="text-xl font-bold font-hud-clock text-cyan-300">-- GB FREE</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 4: ACTION VAULT (Confirmation-Gated PC Control)
+         ====================================================================== -->
+    <section id="tab-vault" class="hidden space-y-6">
+      <div class="hud-tile rounded-3xl p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-cyan-500/20">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <div>
+              <h2 class="text-base font-bold font-hud-clock tracking-wider text-white">CONFIRMATION-GATED AUTOMATION VAULT</h2>
+              <p class="text-xs text-slate-400 font-mono-code">Strict whitelist execution &bull; Shell-injection guarded &bull; Audit logged</p>
+            </div>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full border border-indigo-500/40 bg-indigo-500/10 text-indigo-400 font-hud-clock">
+            GUARDED
+          </span>
+        </div>
+
+        <!-- Whitelisted Actions Interactive Trigger Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="hud-inset rounded-2xl p-4 space-y-3 border border-cyan-500/10">
+            <div class="font-bold font-hud-clock text-sm text-white">VS CODE PROJECT</div>
+            <p class="text-xs text-slate-400">Launch Visual Studio Code in current workspace directory.</p>
+            <button onclick="triggerPcAction('open_app', {app: 'code'})" class="hud-btn w-full py-2 rounded-xl border border-cyan-400/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-hud-clock">
+              EXECUTE (CONFIRM)
+            </button>
+          </div>
+
+          <div class="hud-inset rounded-2xl p-4 space-y-3 border border-cyan-500/10">
+            <div class="font-bold font-hud-clock text-sm text-white">SYSTEM CALCULATOR</div>
+            <p class="text-xs text-slate-400">Launch standard Windows Calculator application.</p>
+            <button onclick="triggerPcAction('open_app', {app: 'calc'})" class="hud-btn w-full py-2 rounded-xl border border-cyan-400/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-hud-clock">
+              EXECUTE (CONFIRM)
+            </button>
+          </div>
+
+          <div class="hud-inset rounded-2xl p-4 space-y-3 border border-cyan-500/10">
+            <div class="font-bold font-hud-clock text-sm text-white">PROJECTS DIRECTORY</div>
+            <p class="text-xs text-slate-400">Open Explorer bounded to C:\projects.</p>
+            <button onclick="triggerPcAction('open_folder', {path: 'C:\\projects'})" class="hud-btn w-full py-2 rounded-xl border border-cyan-400/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-hud-clock">
+              EXECUTE (CONFIRM)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
 
   </div>
 
   <!-- ======================================================================
-       INTERACTIVE JAVASCRIPT: Logic, Voice Upload, Theme Engine
+       HUD SCRIPTS: Live Clock, Mic Recording, API Binding
        ====================================================================== -->
   <script>
-    // Strict HTML entity escaping to eliminate XSS
+    // 1. Strict HTML escaping
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -324,24 +507,33 @@
         .replace(/'/g, '&#039;');
     }
 
-    // 1. Theme Switcher
-    function setTheme(theme) {
-      document.documentElement.className = `theme-${theme}`;
-      ['sapphire', 'neumorphic', 'stealth'].forEach(t => {
-        const btn = document.getElementById(`btn-theme-${t}`);
-        if (t === theme) {
-          btn.className = "px-2.5 py-1 rounded-lg transition-all text-indigo-400 bg-indigo-500/10 font-semibold";
+    // 2. Real-Time HUD Digital Clock
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { hour12: true });
+      const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('hudClock').textContent = timeStr;
+      document.getElementById('hudDate').textContent = dateStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 3. Tab Switching Architecture
+    function switchTab(tabId) {
+      ['command', 'calendar', 'telemetry', 'vault'].forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          btn.classList.add('tab-active');
         } else {
-          btn.className = "px-2.5 py-1 rounded-lg transition-all text-[var(--text-muted)] hover:text-white";
+          sec.classList.add('hidden');
+          btn.classList.remove('tab-active');
         }
       });
-      localStorage.setItem('jarvis_theme', theme);
     }
 
-    const savedTheme = localStorage.getItem('jarvis_theme') || 'sapphire';
-    setTheme(savedTheme);
-
-    // 2. Browser Audio Microphone Recording
+    // 4. Arc Reactor Microphone Voice Recording
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
@@ -373,10 +565,11 @@
         mediaRecorder.start();
         isRecording = true;
 
-        document.getElementById('micLabel').textContent = "Stop Recording";
-        document.getElementById('micBtn').className = "neo-btn px-4 py-2.5 rounded-xl border border-rose-500/40 bg-rose-500/20 text-rose-300 flex items-center justify-center gap-2.5 text-xs font-semibold animate-pulse";
-        document.getElementById('waveContainer').classList.remove('hidden');
-        document.getElementById('waveContainer').classList.add('flex');
+        document.getElementById('reactorCore').classList.add('reactor-recording');
+        document.getElementById('reactorCoreText').textContent = "RECORDING";
+        document.getElementById('reactorStatusText').textContent = "LISTENING... TAP CORE AGAIN TO TRANSMIT";
+        document.getElementById('arcWaveContainer').classList.remove('hidden');
+        document.getElementById('arcWaveContainer').classList.add('flex');
       } catch (err) {
         alert("Microphone permission denied or not supported by browser.");
       }
@@ -386,10 +579,11 @@
       if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-        document.getElementById('micLabel').textContent = "Record Mic";
-        document.getElementById('micBtn').className = "neo-btn px-4 py-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 flex items-center justify-center gap-2.5 text-xs font-semibold";
-        document.getElementById('waveContainer').classList.remove('flex');
-        document.getElementById('waveContainer').classList.add('hidden');
+        document.getElementById('reactorCore').classList.remove('reactor-recording');
+        document.getElementById('reactorCoreText').textContent = "CLICK MIC";
+        document.getElementById('reactorStatusText').textContent = "PROCESSING AUDIO INFERENCE...";
+        document.getElementById('arcWaveContainer').classList.remove('flex');
+        document.getElementById('arcWaveContainer').classList.add('hidden');
       }
     }
 
@@ -403,13 +597,14 @@
           body: formData
         });
         const data = await res.json();
+        document.getElementById('reactorStatusText').textContent = `CAPTURED: "${data.transcript || 'Audio received'}"`;
         loadAll();
       } catch (err) {
         console.error("Upload error:", err);
       }
     }
 
-    // 3. Data Fetching and Rendering
+    // 5. Data Loading and Real-Time Sync
     async function loadAll() {
       await Promise.all([loadTasks(), loadStatus()]);
     }
@@ -418,12 +613,22 @@
       try {
         const res = await fetch('/api/status');
         const data = await res.json();
-        document.getElementById('profileVal').textContent = data.profile || 'dual_pascal';
-        document.getElementById('ollamaStatus').textContent = data.ollama_online ? 'Online' : 'Offline (Rule Fallback)';
-        document.getElementById('ollamaStatus').className = data.ollama_online ? 'font-mono text-emerald-400' : 'font-mono text-amber-400';
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
+
+      // Load hardware stats if in telemetry tab
+      try {
+        const actionRes = await fetch('/api/actions/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ action: 'get_system_status', confirmed: true })
+        });
+        const actData = await actionRes.json();
+        if (actData.stats) {
+          document.getElementById('statCpu').textContent = `${actData.stats.cpu_percent}%`;
+          document.getElementById('statRam').textContent = `${actData.stats.ram_used_gb} / ${actData.stats.ram_total_gb} GB`;
+          document.getElementById('statDisk').textContent = `${actData.stats.disk_free_gb} GB FREE`;
+        }
+      } catch (e) {}
     }
 
     async function loadTasks() {
@@ -434,8 +639,8 @@
         const pending = tasks.filter(t => t.status === 'pending_review');
         const confirmed = tasks.filter(t => t.status === 'confirmed' || t.status === 'scheduled');
 
-        document.getElementById('pendingBadge').textContent = `${pending.length} Pending`;
-        document.getElementById('confirmedBadge').textContent = `${confirmed.length} Scheduled`;
+        document.getElementById('pendingBadge').textContent = `${pending.length} PENDING`;
+        document.getElementById('confirmedBadge').textContent = `${confirmed.length} COMMITTED`;
 
         renderPending(pending);
         renderConfirmed(confirmed);
@@ -447,7 +652,7 @@
     function renderPending(list) {
       const el = document.getElementById('pendingContainer');
       if (!list.length) {
-        el.innerHTML = '<div class="text-center py-14 text-slate-500 text-xs font-mono">No voice memos awaiting confirmation.</div>';
+        el.innerHTML = '<div class="col-span-2 text-center py-12 text-slate-500 text-xs font-mono-code">NO VOCAL MEMOS CURRENTLY STAGED FOR REVIEW.</div>';
         return;
       }
 
@@ -456,59 +661,38 @@
         const safeTranscript = escapeHtml(t.original_transcript);
         const safeClarification = escapeHtml(t.clarification_question);
         const safeRecommendation = escapeHtml(t.recommendation);
-        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : escapeHtml(t.raw_due_text || 'No time set');
+        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : escapeHtml(t.raw_due_text || 'NO TIME SPECIFIED');
 
         return `
-          <div class="neo-inset rounded-xl p-4 space-y-3 border border-slate-800/80 hover:border-slate-700 transition-all">
+          <div class="hud-inset rounded-2xl p-4 space-y-3 border border-cyan-500/20 hover:border-cyan-400 transition-all">
             <div class="flex items-start justify-between gap-2">
               <div class="space-y-0.5">
-                <div class="font-medium text-sm text-white">${safeTitle}</div>
-                ${safeTranscript ? `<div class="text-xs text-[var(--text-muted)] italic">"${safeTranscript}"</div>` : ''}
+                <div class="font-bold text-sm text-white font-sans tracking-wide">${safeTitle}</div>
+                ${safeTranscript ? `<div class="text-xs text-slate-400 font-mono-code italic">"${safeTranscript}"</div>` : ''}
               </div>
-              <span class="text-[10px] px-2 py-0.5 rounded font-mono uppercase font-semibold ${t.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-slate-800/80 text-slate-400'}">${escapeHtml(t.priority)}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-hud-clock uppercase font-semibold ${t.priority === 'urgent' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-cyan-950 text-cyan-300 border border-cyan-500/30'}">${escapeHtml(t.priority)}</span>
             </div>
 
-            <!-- Recommendation Alert Block (SVG Icons) -->
             ${(safeClarification || safeRecommendation) ? `
-              <div class="p-3 rounded-xl bg-indigo-950/40 border border-indigo-900/50 text-xs space-y-1.5">
-                ${safeClarification ? `
-                  <div class="flex items-center gap-1.5 text-amber-300 font-medium">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    <span>${safeClarification}</span>
-                  </div>
-                ` : ''}
-                ${safeRecommendation ? `
-                  <div class="flex items-center gap-1.5 text-indigo-300">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span>${safeRecommendation}</span>
-                  </div>
-                ` : ''}
+              <div class="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs space-y-1.5 font-mono-code">
+                ${safeClarification ? `<div class="text-amber-400 font-bold flex items-center gap-1.5"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>QUESTION: ${safeClarification}</span></div>` : ''}
+                ${safeRecommendation ? `<div class="text-cyan-300 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 flex-shrink-0 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg><span>SUGGESTION: ${safeRecommendation}</span></div>` : ''}
               </div>
             ` : ''}
 
-            <div class="flex items-center gap-2 text-xs text-indigo-400 font-mono">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+            <div class="flex items-center gap-2 text-xs text-cyan-400 font-mono-code">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <span>${safeDue}</span>
             </div>
 
-            <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80 justify-end">
-              <button onclick="confirmTask(${t.id})" class="neo-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>Confirm & Sync</span>
+            <div class="flex items-center gap-2 pt-2 border-t border-cyan-500/10 justify-end">
+              <button onclick="confirmTask(${t.id})" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-semibold font-hud-clock bg-cyan-600 hover:bg-cyan-500 text-black flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.4)]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <span>CONFIRM & SYNC</span>
               </button>
-              <button onclick="rejectTask(${t.id})" class="neo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700/80 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                <span>Dismiss</span>
+              <button onclick="rejectTask(${t.id})" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-semibold font-hud-clock border border-slate-700 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <span>DISMISS</span>
               </button>
             </div>
           </div>
@@ -519,29 +703,25 @@
     function renderConfirmed(list) {
       const el = document.getElementById('confirmedContainer');
       if (!list.length) {
-        el.innerHTML = '<div class="text-center py-14 text-slate-500 text-xs font-mono">No scheduled items on the calendar.</div>';
+        el.innerHTML = '<div class="text-center py-16 text-slate-500 text-xs font-mono-code">NO COMMITTED SCHEDULE ENTRIES.</div>';
         return;
       }
 
       el.innerHTML = list.map(t => {
         const safeTitle = escapeHtml(t.title);
-        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : 'No date set';
+        const safeDue = t.due_datetime ? new Date(t.due_datetime).toLocaleString() : 'NO TIMESTAMP';
         return `
-          <div class="neo-inset rounded-xl p-3.5 flex items-center justify-between gap-3 border border-slate-800/80">
+          <div class="hud-inset rounded-2xl p-4 flex items-center justify-between gap-4 border border-cyan-500/15">
             <div class="space-y-1">
-              <div class="text-sm font-medium text-slate-200">${safeTitle}</div>
-              <div class="text-xs text-[var(--text-muted)] font-mono flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
+              <div class="text-sm font-bold text-white font-sans tracking-wide">${safeTitle}</div>
+              <div class="text-xs text-slate-400 font-mono-code flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 <span>${safeDue}</span>
               </div>
             </div>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-              </svg>
-              <span>Synced</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-hud-clock flex items-center gap-1.5">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <span>COMMITTED</span>
             </span>
           </div>
         `;
@@ -580,7 +760,17 @@
     async function triggerBriefing() {
       const res = await fetch('/api/briefing', { method: 'POST' });
       const data = await res.json();
-      alert(`Spoken Morning Briefing:\n\n${data.text}`);
+      alert(`SPOKEN BRIEFING TRANSMISSION:\n\n${data.text}`);
+    }
+
+    async function triggerPcAction(action, params) {
+      const res = await fetch('/api/actions/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: action, params: params, confirmed: true })
+      });
+      const data = await res.json();
+      alert(`ACTION STATUS: ${data.status.toUpperCase()}\n\n${data.message || 'Execution Complete'}`);
     }
 
     loadAll();

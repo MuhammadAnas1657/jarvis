@@ -131,6 +131,115 @@ class ActionManager:
             self.store.log_action(action_name, params, "executed", "Retrieved system stats")
             return {"status": "success", "stats": stats}
 
+        elif action_clean == "schedule_free_slot":
+            title = str(params.get("title") or "Scheduled Task").strip()
+            day = str(params.get("day") or "Today").strip()
+            start_time = str(params.get("start_time") or "20:00").strip()
+            end_time = str(params.get("end_time") or "22:00").strip()
+            target_date = str(params.get("target_date") or "").strip()
+            priority = str(params.get("priority") or "high").strip()
+
+            due_dt = f"{target_date}T{start_time}:00" if target_date else None
+            task_id = self.store.add_task(
+                title=title,
+                description=f"Scheduled in free slot ({start_time} - {end_time}) on {day}",
+                raw_due_text=f"{day} {start_time}",
+                due_datetime=due_dt,
+                priority=priority,
+                status="confirmed"
+            )
+            msg = f"Scheduled '{title}' for {day} ({start_time} – {end_time})"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "task_id": task_id}
+
+        elif action_clean == "create_reminder":
+            title = str(params.get("title") or "Reminder").strip()
+            raw_due = str(params.get("raw_due_text") or "").strip()
+            due_dt = params.get("due_datetime")
+            priority = str(params.get("priority") or "normal").strip()
+
+            task_id = self.store.add_task(
+                title=title,
+                description=str(params.get("description") or ""),
+                raw_due_text=raw_due,
+                due_datetime=due_dt,
+                priority=priority,
+                status="confirmed"
+            )
+            msg = f"Created reminder '{title}'" + (f" due {raw_due}" if raw_due else "")
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "task_id": task_id}
+
+        elif action_clean == "mark_routine":
+            routine_id = int(params.get("routine_id", 0))
+            date_str = str(params.get("date") or "").strip()
+            title = str(params.get("title") or "Routine block")
+            if not date_str:
+                from datetime import datetime
+                from jarvis.timeparse import DEFAULT_TIMEZONE
+                date_str = datetime.now(DEFAULT_TIMEZONE).strftime("%Y-%m-%d")
+
+            self.store.mark_routine_completion(routine_id=routine_id, date_str=date_str, completed=True)
+            msg = f"Marked '{title}' as completed for {date_str}"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "routine_id": routine_id, "date": date_str}
+
+        elif action_clean == "unmark_routine":
+            routine_id = int(params.get("routine_id", 0))
+            date_str = str(params.get("date") or "").strip()
+            title = str(params.get("title") or "Routine block")
+            if not date_str:
+                from datetime import datetime
+                from jarvis.timeparse import DEFAULT_TIMEZONE
+                date_str = datetime.now(DEFAULT_TIMEZONE).strftime("%Y-%m-%d")
+
+            self.store.mark_routine_completion(routine_id=routine_id, date_str=date_str, completed=False)
+            msg = f"Unmarked '{title}' for {date_str}"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "routine_id": routine_id, "date": date_str}
+
+        elif action_clean == "complete_reminder":
+            task_id = int(params.get("task_id", 0))
+            self.store.update_task_status(task_id, "completed")
+            msg = f"Marked reminder #{task_id} as completed"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "task_id": task_id}
+
+        elif action_clean == "delete_reminder":
+            task_id = int(params.get("task_id", 0))
+            self.store.delete_task(task_id)
+            msg = f"Deleted reminder #{task_id}"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "task_id": task_id}
+
+        elif action_clean == "add_routine_block":
+            b_id = self.store.add_routine_block(
+                day_of_week=params.get("day_of_week", "Daily"),
+                title=params.get("title", "Routine Block"),
+                start_time=params.get("start_time", "09:00"),
+                end_time=params.get("end_time", "10:00"),
+                category=params.get("category", "fixed"),
+                is_locked=True
+            )
+            msg = f"Added routine block '{params.get('title')}' for {params.get('day_of_week')}"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "block_id": b_id}
+
+        elif action_clean == "delete_routine_block":
+            b_id = int(params.get("block_id", 0))
+            self.store.delete_routine_block(b_id)
+            msg = f"Deleted routine block #{b_id}"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "block_id": b_id}
+
+        elif action_clean == "run_audit":
+            from jarvis.routine_audit import audit_daily_routine
+            blocks = self.store.list_weekly_routine(day_of_week=params.get("day_of_week", "Monday"))
+            audit_res = audit_daily_routine(routine_blocks=blocks, proposed_tasks=[])
+            msg = f"Audit complete: {audit_res.get('total_locked_minutes', 0)/60:.1f}h locked, {audit_res.get('true_free_minutes', 0)/60:.1f}h free"
+            self.store.log_action(action_name, params, "executed", msg)
+            return {"status": "success", "message": msg, "audit": audit_res}
+
         else:
             res = f"Denied: Unknown action '{action_name}'"
             self.store.log_action(action_name, params, "rejected", res)

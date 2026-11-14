@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1120">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>JARVIS &bull; 24/7 Personal Accountability & Autonomous Business Buddy</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/static/logo.png">
+  <link rel="apple-touch-icon" href="/static/logo.png">
+  <script src="/static/tailwind.js"></script>
+  <script>tailwind.config = { darkMode: "class" };</script>
+
+  
+
+  <style>
+    /* ==========================================================================
+       AUTHENTIC NEUMORPHISM & DUAL THEME ENGINE (Images 1-4)
+       ========================================================================== */
+
+    * {
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.15s ease;
+    }
+
+    html.theme-white {
+      --hud-bg: #ebf0f7;
+      --hud-bg-image: none;
+      --hud-panel: #ebf0f7;
+      --hud-panel-solid: #ebf0f7;
+      --hud-panel-card: #ebf0f7;
+      --hud-accent: #2563eb;
+      --hud-accent-cyan: #2563eb;
+      --hud-accent-glow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      --hud-border: rgba(255, 255, 255, 0.9);
+      --hud-border-dim: rgba(203, 206, 214, 0.5);
+      --neo-shadow: 8px 8px 18px #cbced6, -8px -8px 18px #ffffff;
+      --neo-shadow-sm: 4px 4px 10px #cbced6, -4px -4px 10px #ffffff;
+      --neo-shadow-lg: 12px 12px 24px #cbced6, -12px -12px 24px #ffffff;
+      --neo-inset: inset 4px 4px 8px #cbced6, inset -4px -4px 8px #ffffff;
+      --neo-inset-sm: inset 2px 2px 5px #cbced6, inset -2px -2px 5px #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #334155;
+      --text-muted: #64748b;
+      --chip-bg: #ebf0f7;
+      --input-bg: #ebf0f7;
+      --input-text: #1e293b;
+      --chat-jarvis-bg: #ffffff;
+      --chat-jarvis-shadow: 6px 6px 16px #cbced6, -6px -6px 16px #ffffff;
+      --chat-anas-bg: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+      --chat-anas-text: #ffffff;
+    }
+
+    /* Dark */
+    
+    html.theme-dark, html.dark {
+      --hud-bg: #0b1120 !important; 
+      --hud-bg-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.25) 0%, transparent 75%) !important;
+      --hud-panel: #0f172a !important;
+      --hud-panel-solid: #0f172a !important;
+      --hud-panel-card: #131d35 !important;
+      --hud-accent: #38bdf8 !important;
+      --hud-accent-cyan: #38bdf8 !important;
+      --hud-accent-glow: 0 4px 16px rgba(56, 189, 248, 0.3) !important;
+      --hud-border: rgba(56, 189, 248, 0.2) !important;
+      --hud-border-dim: rgba(255, 255, 255, 0.08) !important;
+      --neo-shadow: 7px 7px 18px #060a14, -7px -7px 18px #162444 !important;
+      --neo-shadow-sm: 4px 4px 10px #060a14, -4px -4px 10px #162444 !important;
+      --neo-shadow-lg: 12px 12px 26px #060a14, -12px -12px 26px #162444 !important;
+      --neo-inset: inset 3px 3px 7px #060a14, inset -3px -3px 7px #162444 !important;
+      --neo-inset-sm: inset 2px 2px 4px #060a14, inset -2px -2px 4px #162444 !important;
+      --text-main: #f1f5f9 !important;
+      --text-sub: #cbd5e1 !important;
+      --text-muted: #8da2c0 !important;
+      --chip-bg: #0d1527 !important;
+      --input-bg: #0a101f !important;
+      --input-text: #f1f5f9 !important;
+      --chat-jarvis-bg: #131d35 !important;
+      --chat-jarvis-shadow: 6px 6px 16px #060a14, -6px -6px 16px #162444 !important;
+      --chat-anas-bg: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
+      --chat-anas-text: #ffffff !important;
+    }
+
+    body {
+      background-color: var(--hud-bg);
+      background-image: var(--hud-bg-image);
+      color: var(--text-main);
+      font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+
+    .font-hud-clock { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    /* Authentic Neumorphic Surfaces */
+    .hud-card {
+      background: var(--hud-panel-card);
+      box-shadow: var(--neo-shadow);
+      border: 1px solid var(--hud-border);
+      border-radius: 16px;
+    }
+
+    .hud-raised {
+      background: var(--hud-panel);
+      box-shadow: var(--neo-shadow);
+      border: 1px solid var(--hud-border);
+      border-radius: 12px;
+    }
+
+    .hud-raised-sm {
+      background: var(--hud-panel);
+      box-shadow: var(--neo-shadow-sm);
+      border: 1px solid var(--hud-border);
+      border-radius: 10px;
+    }
+
+    .hud-inset {
+      background: var(--chip-bg);
+      box-shadow: var(--neo-inset);
+      border: 1px solid var(--hud-border-dim);
+      border-radius: 12px;
+    }
+
+    .hud-input {
+      background: var(--input-bg);
+      color: var(--input-text);
+      box-shadow: var(--neo-inset);
+      border: 1px solid var(--hud-border-dim);
+      border-radius: 12px;
+    }
+
+    .tab-active {
+      box-shadow: var(--neo-inset) !important;
+      color: var(--hud-accent) !important;
+      font-weight: 700;
+    }
+</style>
+</head>
+<body class="p-3 md:p-6 lg:p-8">
+
+  <!-- ========================================================================
+       TOP NAVIGATION & STATUS BAR (Theme Switcher, PWA Modal, Status Badge)
+       ======================================================================== -->
+  <header class="hud-card p-4 md:px-6 md:py-4 mb-6">
+    <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+            <!-- Left: Logo & Core Brand (Transparent PNG, strictly NO circular or square frame) -->
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3 select-none">
+          <img src="/static/jarvis-logo-dark.png" alt="JARVIS - Your Personal AI Agent" class="hidden dark:block h-12 md:h-14 w-auto object-contain select-none">
+          <img src="/static/jarvis-logo-light.png" alt="JARVIS - Your Personal AI Agent" class="block dark:hidden h-12 md:h-14 w-auto object-contain select-none">
+          <span class="text-[9px] font-mono px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold self-start mt-1">2.0 CORE</span>
+        </div>
+      </div>
+
+      <!-- Center: 4 Clean Switchable Tabs -->
+      <nav class="flex items-center gap-1.5 md:gap-2 p-1.5 rounded-xl hud-inset overflow-x-auto max-w-full w-full lg:w-auto justify-start lg:justify-center">
+        <button id="nav-btn-chat" onclick="switchDashboardTab('chat')" class="px-3 md:px-4 py-2 rounded-xl text-xs font-semibold text-[var(--text-sub)] transition flex items-center gap-1.5 whitespace-nowrap tab-active">
+          <span>Discussion &amp; Hub</span>
+        </button>
+        <button id="nav-btn-today" onclick="switchDashboardTab('chat')" class="hidden"></button>
+        <button id="nav-btn-routine" onclick="switchDashboardTab('routine')" class="px-3 md:px-4 py-2 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>Routine &amp; Audit</span>
+        </button>
+        <button id="nav-btn-reminders" onclick="switchDashboardTab('reminders')" class="px-3 md:px-4 py-2 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>Reminders</span>
+        </button>
+        <button id="nav-btn-settings" onclick="switchDashboardTab('settings')" class="px-3 md:px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <!-- Right: Live HUD Clock, Connection Pill & Mobile Install -->
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+        <!-- Live HUD Clock & Date -->
+        <div class="hidden sm:flex flex-col text-right">
+          <div id="hudClock" class="font-hud-clock font-bold text-sm text-[var(--text-main)]">00:00:00</div>
+          <div id="hudDate" class="text-[10px] text-[var(--text-muted)] font-mono">Today</div>
+        </div>
+
+        <div class="flex items-center gap-1 p-1 rounded-xl hud-inset">
+          <button id="theme-btn-white" onclick="applyTheme('white')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">Light</button>
+          <button id="theme-btn-dark" onclick="applyTheme('dark')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">Dark</button>
+        </div>
+        <!-- Connection Status Pill -->
+        
+
+                </div>
+
+    </div>
+  </header>
+
+  <!-- Due Alarm / Ringing Banner (Auto displayed if alarm active) -->
+  <div id="dueAlertBanner" class="hidden mb-6 p-4 rounded-lg bg-rose-500 text-white shadow-lg flex items-center justify-between animate-bounce">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl"></span>
+      <span id="dueAlertText" class="font-black text-sm uppercase tracking-wide">Anas, wake up! Time for your scheduled task!</span>
+    </div>
+    <button onclick="triggerSimulatedAlarm()" class="px-4 py-1.5 rounded-xl bg-white text-rose-600 font-bold text-xs uppercase">
+      Respond Now
+    </button>
+  </div>
+
+  <!-- ========================================================================
+       SECTION 1: DISCUSSION STREAM & COMMAND HUB (Primary UI)
+       ======================================================================== -->
+  <section id="section-chat" class="w-full">
+    <div class="hud-card rounded-2xl overflow-hidden flex h-[calc(100dvh-185px)] min-h-[480px] md:h-[760px] border border-[var(--hud-border)] shadow-xl relative">
+      
+      <!-- Mobile Sidebar Backdrop -->
+      <div id="chatSidebarBackdrop" onclick="toggleChatSidebar()" class="hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-xs md:hidden"></div>
+
+      <!-- CHATGPT STYLE SIDEBAR: Chat History -->
+      <aside id="chatSidebar" class="w-72 shrink-0 hidden md:flex flex-col border-r border-[var(--hud-border-dim)] bg-[var(--hud-panel)] transition-all duration-300 fixed md:static inset-y-0 left-0 z-40 shadow-2xl md:shadow-none">
+        <!-- Top: New Chat & Search -->
+        <div class="p-3.5 border-b border-[var(--hud-border-dim)] space-y-2.5">
+          <div class="flex items-center gap-2">
+            <button onclick="newChat()" class="flex-1 py-2.5 px-3 rounded-xl bg-[var(--hud-accent)] hover:opacity-90 text-white text-xs font-bold transition flex items-center justify-between shadow-sm">
+              <span>+ New Chat</span>
+              <span class="text-[10px] opacity-75 font-mono">Ctrl+K</span>
+            </button>
+            <button onclick="toggleChatSidebar()" class="md:hidden px-3 py-2.5 rounded-xl hud-raised text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)]" title="Close History">
+              x
+            </button>
+          </div>
+          <div class="relative">
+            <input id="chatSearch" oninput="renderChatList()" type="text" placeholder="Search chats..." class="w-full px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none">
+          </div>
+        </div>
+
+        <!-- History List Header -->
+        <div class="px-3.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-between">
+          <span>Chat History</span>
+          <span id="chatCountBadge" class="text-[10px] font-mono text-[var(--text-muted)]">0 chats</span>
+        </div>
+
+        <!-- Scrollable List of Chats -->
+        <div id="chatList" class="flex-1 overflow-y-auto px-2 space-y-1 pb-3"></div>
+
+        <!-- Bottom Actions -->
+        <div class="p-3 border-t border-[var(--hud-border-dim)] flex items-center justify-between text-xs bg-[var(--hud-panel)]">
+          <button onclick="clearAllChats()" class="text-xs text-[var(--text-muted)] hover:text-rose-500 transition font-medium">Clear All Chats</button>
+          <span class="text-[10px] text-[var(--text-muted)] font-mono">Local Offline</span>
+        </div>
+      </aside>
+
+      <!-- MAIN CHAT CONVERSATION WINDOW -->
+      <div class="flex-1 min-w-0 flex flex-col bg-[var(--hud-bg)]">
+        
+        <!-- Chat Header -->
+        <div class="flex items-center justify-between gap-2 px-3 py-2.5 md:px-5 md:py-3.5 border-b border-[var(--hud-border-dim)] bg-[var(--hud-panel)]">
+          <div class="flex items-center gap-2 md:gap-3 min-w-0">
+            <button onclick="toggleChatSidebar()" id="sidebarToggleBtn" class="px-2.5 py-1.5 rounded-lg hud-raised text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition shrink-0" title="Toggle Sidebar">
+              History
+            </button>
+            <div class="flex items-center gap-2 md:gap-2.5 min-w-0">
+              <img src="/static/jarvis-emblem-dark.png" alt="JARVIS" class="hidden dark:block w-6 h-6 md:w-7 md:h-7 object-contain select-none shrink-0">
+              <img src="/static/jarvis-emblem-light.png" alt="JARVIS" class="block dark:hidden w-6 h-6 md:w-7 md:h-7 object-contain select-none shrink-0">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 md:gap-2">
+                  <h2 id="currentChatTitle" class="font-bold text-xs md:text-sm text-[var(--text-main)] truncate max-w-[130px] sm:max-w-xs md:max-w-md">Discussion with Jarvis</h2>
+                  <span class="hidden sm:inline-block text-[9px] font-mono px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold shrink-0">Groq LLaMA 70B</span>
+                </div>
+                <p class="hidden sm:block text-[10px] text-[var(--text-muted)] truncate">Local offline voice &amp; autonomous intelligence</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+            <button onclick="newChat()" class="px-2.5 md:px-3 py-1.5 rounded-lg hud-raised hover:hud-inset text-xs font-semibold text-[var(--hud-accent)] transition">
+              + New
+            </button>
+            <button onclick="clearChatHistory()" class="px-2.5 md:px-3 py-1.5 rounded-lg hud-raised hover:hud-inset text-xs font-semibold text-[var(--text-muted)] hover:text-rose-500 transition" title="Clear current messages">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages Stream Container -->
+        <div id="chatMessagesContainer" class="flex-1 overflow-y-auto space-y-4 p-4 md:p-6 hud-inset m-3 rounded-xl">
+          <!-- Dynamically populated by app.js -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="chatTypingIndicator" class="hidden flex items-center gap-2 px-6 py-1.5 text-xs font-medium text-blue-600 dark:text-cyan-400">
+          <span class="flex gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce [animation-delay:0.4s]"></span>
+          </span>
+          <span class="text-[11px] font-mono">Jarvis is computing...</span>
+        </div>
+
+        <!-- Recessed Pill Input Bar -->
+        <div class="p-3 md:px-5 pb-4">
+          <!-- Voice Speaking Status Banner -->
+          <div id="voiceSpeakingBanner" class="hidden flex items-center justify-between px-3.5 py-2 mb-2.5 rounded-xl bg-blue-500/15 border border-blue-400/30 text-xs font-semibold text-sky-400 shadow-sm">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              Jarvis is speaking...
+            </span>
+            <button onclick="stopSpeaking()" class="px-2.5 py-1 rounded-lg hud-raised text-[10px] text-white hover:text-rose-400 font-bold uppercase transition">
+              Stop
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5 sm:gap-2.5 p-1.5 sm:p-2 rounded-2xl hud-inset bg-[var(--input-bg)]">
+            <!-- Voice Dictation / Mic Button -->
+            <button id="chatMicBtn" onclick="toggleChatVoiceRecording()" class="px-2.5 sm:px-3.5 h-9 sm:h-10 text-xs font-bold shrink-0 rounded-xl hud-raised hover:hud-inset flex items-center justify-center text-blue-600 dark:text-cyan-400 transition" title="Speak to Jarvis (Urdu/English)">
+              Mic
+            </button>
+
+            <!-- Auto Voice Response Toggle -->
+            <button id="voiceAutoReplyBtn" onclick="toggleAutoVoiceReply()" class="px-2 sm:px-2.5 h-9 sm:h-10 text-[10px] sm:text-[11px] font-bold shrink-0 rounded-xl hud-inset text-emerald-400 border border-emerald-400/40 transition flex items-center justify-center" title="Toggle Auto Voice Responses">
+              Voice: ON
+            </button>
+
+            <!-- Input Textbox -->
+            <input id="chatInput" type="text" placeholder="Message or speak to Jarvis..."
+                   onkeydown="if(event.key==='Enter') sendChatMessage()"
+                   class="flex-1 min-w-0 bg-transparent px-2 sm:px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none">
+
+            <!-- Send Button -->
+            <button onclick="sendChatMessage()" class="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition">
+              Send
+            </button>
+          </div>
+          <div id="chatMicStatus" class="text-[11px] font-mono text-center text-blue-600 dark:text-cyan-400 mt-1 min-h-[16px]"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       SECTION 2: ROUTINE, EXTRA WORK & DEADLINES CALENDAR (7-Day Parallel Matrix)
+       ======================================================================== -->
+  <section id="section-routine" class="hidden space-y-6">
+
+    <!-- Top Row: Due Dates & Deadlines Calendar + Add Routine / Stage Extra Work -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: Interactive Due Dates & Deadlines Calendar (col-span-7) -->
+      <div class="lg:col-span-7 hud-card p-4 sm:p-6 rounded-xl flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--hud-border-dim)] mb-4">
+            <div>
+              <h2 class="font-bold text-base sm:text-lg text-[var(--text-main)]">Due Dates &amp; Deadlines Calendar</h2>
+              <p class="text-xs text-[var(--text-muted)]">Click any date to view deadlines, due tasks &amp; extra work</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="changeCalendarMonth(-1)" class="px-2.5 py-1.5 rounded-lg hud-raised hover:hud-inset text-xs font-bold text-[var(--text-main)] transition">&lt;</button>
+              <span id="calendarMonthLabel" class="px-3 py-1.5 rounded-lg hud-inset text-xs font-bold font-mono text-[var(--text-main)] min-w-[125px] text-center">Month Year</span>
+              <button onclick="changeCalendarMonth(1)" class="px-2.5 py-1.5 rounded-lg hud-raised hover:hud-inset text-xs font-bold text-[var(--text-main)] transition">&gt;</button>
+              <button onclick="jumpCalendarToday()" class="px-2.5 py-1.5 rounded-lg bg-blue-600/15 text-blue-600 dark:text-cyan-400 text-xs font-bold hover:bg-blue-600/25 transition">Today</button>
+            </div>
+          </div>
+
+          <!-- Calendar Summary Strip -->
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="p-2.5 rounded-xl hud-inset text-center">
+              <div id="calOverdueCount" class="text-sm font-black font-mono text-rose-500">0</div>
+              <div class="text-[10px] text-[var(--text-muted)] uppercase font-semibold">Overdue</div>
+            </div>
+            <div class="p-2.5 rounded-xl hud-inset text-center">
+              <div id="calDueTodayCount" class="text-sm font-black font-mono text-amber-500">0</div>
+              <div class="text-[10px] text-[var(--text-muted)] uppercase font-semibold">Due Today</div>
+            </div>
+            <div class="p-2.5 rounded-xl hud-inset text-center">
+              <div id="calUpcomingCount" class="text-sm font-black font-mono text-blue-600 dark:text-cyan-400">0</div>
+              <div class="text-[10px] text-[var(--text-muted)] uppercase font-semibold">Upcoming</div>
+            </div>
+          </div>
+
+          <!-- Weekday Headers (Mon - Sun) -->
+          <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          </div>
+
+          <!-- Dynamic Calendar Grid -->
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5">
+            <!-- Populated by renderDeadlinesCalendar() -->
+          </div>
+        </div>
+
+        <!-- Selected Date Deadlines Details -->
+        <div class="mt-4 pt-4 border-t border-[var(--hud-border-dim)]">
+          <div class="flex items-center justify-between mb-2">
+            <span id="selectedDateTitle" class="text-xs font-bold text-[var(--text-main)]">Deadlines for Selected Date</span>
+            <span id="selectedDateCountBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold">0 items</span>
+          </div>
+          <div id="selectedDateDeadlinesList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+            <!-- Populated by renderDeadlinesCalendar() -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Add Fixed Routine & Stage Extra Work / Audit (col-span-5) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- Add Fixed Routine Block -->
+        <div class="hud-card p-4 sm:p-6 rounded-xl space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)]">
+            <div>
+              <h3 class="font-bold text-base text-[var(--text-main)]">Add Fixed Routine Block</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">Hard unmoveable daily/weekly blocks</p>
+            </div>
+            <span id="weeklyTrueFreeSummary" class="text-[10px] font-mono text-blue-600 dark:text-cyan-400 font-bold"></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input id="routineTitleInput" type="text" placeholder="Title (e.g. Deep Work)" class="px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <select id="routineDayInput" class="px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+              <option value="Daily">Daily (All 7 Days)</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input id="routineStartInput" type="time" value="09:00" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="routineEndInput" type="time" value="11:00" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="routineCategoryInput" type="text" placeholder="Category" value="work" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+          </div>
+          <button onclick="addWeeklyRoutineBlock()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition">
+            + Commit Fixed Routine
+          </button>
+        </div>
+
+        <!-- Stage Extra Work & Deterministic Audit -->
+        <div class="hud-card p-4 sm:p-6 rounded-xl space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)]">
+            <div>
+              <h3 class="font-bold text-base text-[var(--text-main)]">Stage Extra Work &amp; Audit</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">Add deadlines &amp; run deterministic routine audit</p>
+            </div>
+            <button onclick="runAdvisoryAudit()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] uppercase tracking-wider transition shadow-sm">
+              Run Audit
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input id="auditTaskTitle" type="text" placeholder="Extra work / task title" class="px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="auditTaskDueDate" type="date" class="px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none" title="Due Date / Deadline">
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input id="auditTaskMinutes" type="number" placeholder="Mins" value="60" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="auditTaskPrefTime" type="time" value="14:00" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            <select id="auditTaskPriority" class="px-2.5 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <button onclick="stageAuditTaskFromInputs()" class="w-full py-2 rounded-xl hud-raised hover:hud-inset text-xs font-bold text-[var(--hud-accent)] transition">
+            + Stage Extra Work / Deadline
+          </button>
+
+          <div id="proposedAuditTasksList" class="space-y-1.5 max-h-28 overflow-y-auto"></div>
+
+          <!-- Audit Results Summary -->
+          <div id="auditResultPanel" class="p-3 rounded-lg hud-inset space-y-2">
+            <div id="auditMetricsSummary" class="text-[11px] font-mono font-semibold text-blue-600 dark:text-cyan-400">Click 'Run Audit' to check free capacity.</div>
+            <div id="auditWarningsList" class="space-y-1 text-[11px] text-amber-500"></div>
+            <div id="auditCoreScheduleList" class="space-y-1 text-[11px]"></div>
+            <div id="auditOverflowList" class="space-y-1 text-[11px] text-rose-500"></div>
+            <div class="pt-2 border-t border-[var(--hud-border-dim)] flex flex-wrap items-center justify-between gap-2">
+              <label class="flex items-center gap-1.5 text-[11px] text-[var(--text-sub)] cursor-pointer">
+                <input id="commitUserConfirmedCheck" type="checkbox" class="rounded text-blue-600">
+                <span>Confirm schedule</span>
+              </label>
+              <button onclick="commitAuditedRoutine()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase transition">
+                Commit
+              </button>
+            </div>
+            <div id="commitRoutineStatus" class="text-[11px] text-[var(--text-muted)] font-mono"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Row: 7-Day Fixed Routine & Parallel Extra Work Matrix (7 Days x 2 Parallel Tiles) -->
+    <div class="hud-card p-4 sm:p-6 rounded-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--hud-border-dim)]">
+        <div>
+          <h2 class="font-bold text-base sm:text-lg text-[var(--text-main)]">Weekly 7-Day Routine &amp; Parallel Extra Work</h2>
+          <p class="text-xs text-[var(--text-muted)]">Each day shows your Fixed Routine tile alongside a parallel tile for Extra Work &amp; Deadlines due till that day</p>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] font-mono">
+          <span class="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold">Left: Fixed Routine</span>
+          <span class="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold">Right: Extra Work Till Day</span>
+        </div>
+      </div>
+
+      <!-- 7 Day Pairs Rendered Here -->
+      <div id="sevenDayRoutineMatrix" class="space-y-4">
+        <!-- Dynamically populated by renderWeeklyRoutineSection() -->
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========================================================================
+       SECTION 3: REMINDERS & CONFIRMATION GATE (Replaced Wake-Up Alarm)
+       ======================================================================== -->
+  <section id="section-reminders" class="hidden space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: Create / Stage Reminder (col-span-5) -->
+      <div class="lg:col-span-5 hud-card p-4 sm:p-6 rounded-xl space-y-4 h-fit">
+        <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)]">
+          <div>
+            <h2 class="font-bold text-base sm:text-lg text-[var(--text-main)]">Create Reminder</h2>
+            <p class="text-xs text-[var(--text-muted)]">Urdu/English voice or text &bull; Always requires confirmation</p>
+          </div>
+          <button id="voiceRecordBtnTask" onclick="toggleTaskVoiceRecording()" class="px-3 py-1.5 rounded-xl hud-raised hover:hud-inset text-xs font-bold text-blue-600 dark:text-cyan-400 transition">
+            Voice Task
+          </button>
+        </div>
+        <div id="voiceRecordStatusTask" class="text-[11px] font-mono text-center text-blue-600 dark:text-cyan-400"></div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Reminder / Task</label>
+            <input id="reminderTitleInput" type="text" placeholder="e.g. Kal sham 5 baje supplier ko call karna hai" class="w-full mt-1 px-3 py-2.5 rounded-xl hud-inset text-xs sm:text-sm text-[var(--text-main)] focus:outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Due Date</label>
+              <input id="reminderDateInput" type="date" class="w-full mt-1 px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Due Time</label>
+              <input id="reminderTimeInput" type="time" class="w-full mt-1 px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Priority</label>
+            <select id="reminderPriorityInput" class="w-full mt-1 px-3 py-2 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <button onclick="submitReminderForm()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-md">
+            Stage Reminder for Confirmation
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Pending & Confirmed Reminders (col-span-7) -->
+      <div class="lg:col-span-7 space-y-6">
+        <div class="hud-card p-4 sm:p-6 rounded-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)] mb-4">
+            <div>
+              <h3 class="font-bold text-base text-[var(--text-main)]">Awaiting Confirmation (Pending)</h3>
+              <p class="text-xs text-[var(--text-muted)]">Review and confirm before scheduling</p>
+            </div>
+            <span id="pendingCountBadge" class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-500 font-bold">0 Pending</span>
+          </div>
+          <div id="pendingRemindersList" class="space-y-2.5"></div>
+        </div>
+
+        <div class="hud-card p-4 sm:p-6 rounded-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)] mb-4">
+            <div>
+              <h3 class="font-bold text-base text-[var(--text-main)]">Confirmed Reminders &amp; Deadlines</h3>
+              <p class="text-xs text-[var(--text-muted)]">Active reminders synced with your calendar &amp; routine matrix</p>
+            </div>
+            <span id="confirmedCountBadge" class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500 font-bold">0 Confirmed</span>
+          </div>
+          <div id="confirmedRemindersList" class="space-y-2.5"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       SECTION 4: SETTINGS, MOBILE APP DOWNLOAD & DIAGNOSTICS
+       ======================================================================== -->
+  <section id="section-settings" class="hidden space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Download & Install Mobile App (col-span-6) -->
+      <div class="lg:col-span-6 hud-card p-4 sm:p-6 rounded-xl space-y-4">
+        <div class="pb-3 border-b border-[var(--hud-border-dim)]">
+          <h3 class="font-bold text-base sm:text-lg text-[var(--text-main)]">Download App on Mobile</h3>
+          <p class="text-xs text-[var(--text-muted)]">Install JARVIS on Android or iOS for offline &amp; home-screen access</p>
+        </div>
+
+        <!-- One-Click PWA Install -->
+        <button onclick="triggerPwaInstallPrompt()" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-md">
+          Install / Download Mobile App (PWA)
+        </button>
+        <div id="oneClickInstallStatus" class="text-xs font-mono text-center text-blue-600 dark:text-cyan-400 min-h-[16px]"></div>
+
+        <!-- QR Code + LAN URL -->
+        <div class="flex flex-col items-center justify-center p-4 rounded-xl hud-inset">
+          <div id="settingsMobileQrContainer" class="w-44 h-44 flex items-center justify-center bg-white p-2 rounded-xl shadow-inner">
+            <span class="text-xs text-slate-500">Loading QR...</span>
+          </div>
+          <p class="text-[11px] text-[var(--text-muted)] mt-2 text-center">Scan with your mobile camera on the same Wi-Fi network</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Mobile Network URL</label>
+          <div class="flex items-center gap-2">
+            <input id="settingsMobileUrlInput" type="text" readonly class="flex-1 min-w-0 px-3 py-2 rounded-xl hud-inset text-xs font-mono text-[var(--text-main)] focus:outline-none">
+            <button onclick="copySettingsMobileUrl()" class="px-3 py-2 rounded-xl hud-raised hover:hud-inset text-xs font-bold text-[var(--text-sub)] shrink-0">Copy</button>
+          </div>
+          <div id="settingsCopyUrlStatus" class="hidden text-[11px] font-mono text-emerald-500">URL copied to clipboard!</div>
+        </div>
+
+        <!-- Android APK & Mobile Instructions -->
+        <div class="p-3.5 rounded-xl hud-inset text-xs space-y-2 text-[var(--text-sub)]">
+          <div class="font-bold text-[var(--text-main)]">Android &amp; iOS Setup:</div>
+          <div>&bull; <span class="font-semibold">Android Chrome:</span> Open URL above &rarr; Menu (&vellip;) &rarr; <strong>Install App</strong></div>
+          <div>&bull; <span class="font-semibold">iOS Safari:</span> Open URL above &rarr; Share &rarr; <strong>Add to Home Screen</strong></div>
+          <div class="pt-1 border-t border-[var(--hud-border-dim)] text-[11px] text-[var(--text-muted)]">
+            Offline Android APK Project: <code id="settingsApkPathText" class="font-mono text-[var(--text-main)]">mobile/</code> &mdash; Build via <code class="font-mono">powershell -File mobile/build_apk.ps1</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database & Offline Telemetry (col-span-6) -->
+      <div class="lg:col-span-6 hud-card p-4 sm:p-6 rounded-xl space-y-4 h-fit">
+        <div class="pb-3 border-b border-[var(--hud-border-dim)]">
+          <h3 class="font-bold text-base sm:text-lg text-[var(--text-main)]">Database &amp; Storage Telemetry</h3>
+          <p class="text-xs text-[var(--text-muted)]">Direct local database integration without cloud dependencies</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-lg hud-inset text-center">
+            <div id="statCpu" class="text-base font-black font-mono text-[var(--text-main)]">0%</div>
+            <div class="text-[10px] text-[var(--text-muted)] uppercase">CPU</div>
+          </div>
+          <div class="p-3 rounded-lg hud-inset text-center">
+            <div id="statRam" class="text-base font-black font-mono text-[var(--text-main)]">0%</div>
+            <div class="text-[10px] text-[var(--text-muted)] uppercase">RAM</div>
+          </div>
+          <div class="p-3 rounded-lg hud-inset text-center">
+            <div id="statDisk" class="text-base font-black font-mono text-[var(--text-main)]">0%</div>
+            <div class="text-[10px] text-[var(--text-muted)] uppercase">DISK</div>
+          </div>
+          <div class="p-3 rounded-lg hud-inset text-center">
+            <div id="statRoutineHours" class="text-base font-black font-mono text-blue-600 dark:text-cyan-400">0h</div>
+            <div class="text-[10px] text-[var(--text-muted)] uppercase">ROUTINE</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-lg hud-inset text-xs font-mono space-y-1.5 text-[var(--text-sub)]">
+          <div><span class="text-[var(--text-muted)]">Host:</span> localhost:5432 (pgAdmin)</div>
+          <div><span class="text-[var(--text-muted)]">Database:</span> jarvis</div>
+          <div><span class="text-[var(--text-muted)]">User Convention:</span> jarvis &amp; postgres</div>
+          <div><span class="text-[var(--text-muted)]">Whisper Pool:</span> 46 Groq API Keys Active</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       MODAL 1: MOBILE INSTALL & QR CODE MODAL
+       ======================================================================== -->
+  <div id="mobileInstallModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="w-full max-w-md hud-card p-6 rounded-xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--hud-border-dim)]">
+        <h3 class="font-bold text-base text-[var(--text-main)]">Install Mobile App (PWA &amp; APK)</h3>
+        <button onclick="closeMobileInstallModal()" class="w-8 h-8 rounded-xl hud-raised flex items-center justify-center text-xs">Close</button>
+      </div>
+
+      <div class="flex flex-col items-center justify-center p-4 rounded-lg hud-inset">
+        <div id="mobileQrContainer" class="w-48 h-48 flex items-center justify-center bg-white p-2 rounded-xl shadow-inner">
+          <span class="text-xs text-slate-500">Generating QR...</span>
+        </div>
+        <p class="text-[11px] text-[var(--text-muted)] mt-2 text-center">Scan with your mobile camera on the same Wi-Fi network</p>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Local Network URL</label>
+        <div class="flex items-center gap-2">
+          <input id="mobileInstallUrlInput" type="text" readonly class="flex-1 px-3 py-2 rounded-xl hud-inset text-xs font-mono text-[var(--text-main)] focus:outline-none">
+          <button onclick="copyMobileInstallUrl()" class="px-3 py-2 rounded-xl hud-raised text-xs font-bold text-[var(--text-sub)]">Copy</button>
+        </div>
+        <div id="copyInstallUrlStatus" class="text-[11px] font-mono text-emerald-500"></div>
+      </div>
+
+      <div class="p-3 rounded-xl hud-inset text-xs space-y-1">
+        <div class="font-bold text-[var(--text-main)]">Capacitor Android Project:</div>
+        <div id="mobileApkPathText" class="font-mono text-[11px] text-[var(--text-muted)]">mobile/</div>
+        <div class="text-[11px] text-[var(--text-muted)]">Run <code>powershell -File mobile/build_apk.ps1</code> to generate APK.</div>
+      </div>
+
+      <button id="oneClickInstallStatus" onclick="triggerPwaInstallPrompt()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition">
+        Install PWA on this Device
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: STRICT PROOF-OF-WAKE ALARM MODAL
+       ======================================================================== -->
+  <div id="wakeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="w-full max-w-lg hud-card p-6 md:p-8 rounded-xl space-y-5 border-2 border-rose-500">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-lg bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl animate-pulse">
+          
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-rose-500 font-hud-clock">Anas, wake up!</h3>
+          <p class="text-xs text-[var(--text-muted)]">Proof-of-Wake 15-second looping voice protocol active</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-lg hud-inset space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-[var(--text-muted)]">Alarm Time:</span>
+          <span id="wakeModalTime" class="font-bold text-sm text-[var(--text-main)] font-mono">06:00</span>
+        </div>
+        <div class="text-xs">
+          <span class="text-[var(--text-muted)]">Committed First Task:</span>
+          <div id="wakeModalTaskPrompt" class="font-bold text-sm text-blue-600 dark:text-cyan-400 mt-0.5">Morning Deep Work</div>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Proof of Wakefulness</label>
+        <input id="wakeVerificationInput" type="text" placeholder="Type or speak: 'I am awake and ready'" class="w-full px-3.5 py-2.5 rounded-xl hud-inset text-xs text-[var(--text-main)] focus:outline-none">
+
+        <label class="flex items-center gap-2.5 text-xs text-[var(--text-sub)] cursor-pointer">
+          <input id="wakeFirstTaskCheck" type="checkbox" class="rounded text-emerald-500">
+          <span>I confirm I am out of bed and ready to execute my first scheduled task.</span>
+        </label>
+
+        <div id="wakeVerifyStatus" class="text-xs font-mono min-h-[16px]"></div>
+      </div>
+
+      <button onclick="submitWakeVerification()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-lg">
+        Complete Proof-of-Wake &amp; Acknowledge Alarm
+      </button>
+    </div>
+  </div>
+
+  <!-- Primary Application Script -->
+  <script src="/static/app.js"></script>
+  <script>
+    // Fallback for Vite Dev Server environments where /static/app.js is mapped locally
+    if (typeof window.applyTheme === 'undefined') {
+      const s = document.createElement('script');
+      s.src = '/src/app.js';
+      document.body.appendChild(s);
+    }
+  </script>
+</body>
+</html>

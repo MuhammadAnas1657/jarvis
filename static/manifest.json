@@ -1,0 +1,25 @@
+{
+  "name": "JARVIS Personal Assistant & Accountability Engine",
+  "short_name": "JARVIS",
+  "description": "Offline-First Personal Assistant, Hard Routine Auditor, Proof-of-Wake Alarm, Course Learning & Business Buddy (JS Frontend + Python FastAPI + Native PostgreSQL)",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050914",
+  "theme_color": "#00f0ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -14,6 +14,72 @@ from jarvis.timeparse import parse_relative_time
 from jarvis.watcher import InboxWatcher
 
 
+DEFAULT_FIXED_ROUTINE = [
+    # Monday - Wednesday: University (07:00-16:00 incl. 45m commute for 08:30 start) + Office (16:00-19:00) + Commute Home (19:00-20:00)
+    ("Monday", "University Commute & Classes", "07:00", "16:00", "university"),
+    ("Monday", "Office Work (Post-University)", "16:00", "19:00", "office"),
+    ("Monday", "Commute Home & Dinner", "19:00", "20:00", "commute"),
+
+    ("Tuesday", "University Commute & Classes", "07:00", "16:00", "university"),
+    ("Tuesday", "Office Work (Post-University)", "16:00", "19:00", "office"),
+    ("Tuesday", "Commute Home & Dinner", "19:00", "20:00", "commute"),
+
+    ("Wednesday", "University Commute & Classes", "07:00", "16:00", "university"),
+    ("Wednesday", "Office Work (Post-University)", "16:00", "19:00", "office"),
+    ("Wednesday", "Commute Home & Dinner", "19:00", "20:00", "commute"),
+
+    # Thursday & Friday: Full Day Office
+    ("Thursday", "Office (Full Day)", "09:00", "18:00", "office"),
+    ("Friday", "Office (Full Day)", "09:00", "18:00", "office"),
+
+    # Saturday & Sunday: Full Day Work From Home
+    ("Saturday", "Work From Home (Full Day)", "10:00", "18:00", "work"),
+    ("Sunday", "Work From Home (Full Day)", "10:00", "18:00", "work"),
+]
+
+
+def seed_fixed_routine(store: TaskStore | None = None) -> int:
+    """Idempotently seed or update the user's fixed weekly routine in the database."""
+    db = store or TaskStore()
+    existing = db.list_weekly_routine()
+    by_key = {
+        (str(b.get("day_of_week", "")).strip().lower(), str(b.get("title", "")).strip().lower()): b
+        for b in existing
+    }
+
+    changed = 0
+    for day, title, start_time, end_time, category in DEFAULT_FIXED_ROUTINE:
+        key = (day.lower(), title.lower())
+        match = by_key.get(key)
+        if match:
+            if (
+                match.get("start_time") != start_time
+                or match.get("end_time") != end_time
+                or match.get("category") != category
+            ):
+                db.update_routine_block(
+                    match["id"],
+                    day_of_week=day,
+                    title=title,
+                    start_time=start_time,
+                    end_time=end_time,
+                    category=category,
+                    is_locked=True,
+                )
+                changed += 1
+        else:
+            db.add_routine_block(
+                day_of_week=day,
+                title=title,
+                start_time=start_time,
+                end_time=end_time,
+                category=category,
+                is_locked=True,
+            )
+            changed += 1
+    return changed
+
+
 def main():
     parser = argparse.ArgumentParser(description="JARVIS: Offline Personal Voice Assistant")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
@@ -37,13 +103,18 @@ def main():
     test_parser = subparsers.add_parser("test-parse", help="Test Urdu-English time parser on a phrase")
     test_parser.add_argument("phrase", help="Phrase to parse, e.g. 'kal subah 9 baje'")
 
+    # Command: seed
+    subparsers.add_parser("seed", help="Seed or update fixed weekly routine in the database")
+
     args = parser.parse_args()
 
     if args.command == "run":
         cfg = load_config()
+        seeded_count = seed_fixed_routine()
         print(f"[*] Starting Jarvis on {args.host}:{args.port}")
         print(f"[*] Active Profile: {cfg.profile}")
         print(f"[*] Timezone: {cfg.timezone}")
+        print(f"[*] Fixed Routine Seeded/Updated: {seeded_count} change(s)")
         print(f"[*] Watching Inbox: {cfg.get_abs_inbox_dir()}")
 
         # Start background watcher
@@ -110,6 +181,10 @@ def main():
         dt = parse_relative_time(args.phrase)
         print(f"\nInput:  \"{args.phrase}\"")
         print(f"Parsed: {dt} (Timezone: {dt.tzinfo if dt else 'None'})\n")
+
+    elif args.command == "seed":
+        changed = seed_fixed_routine()
+        print(f"[+] Fixed weekly routine seeded/updated ({changed} change(s)).")
 
     else:
         parser.print_help()

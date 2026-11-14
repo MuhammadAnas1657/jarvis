@@ -63,14 +63,15 @@ class TextToSpeech:
         if os.name == "nt":
             try:
                 ps_script = (
-                    "$OutputWav = $args[0];\n"
-                    "$InputText = [Console]::In.ReadToEnd();\n"
-                    "if ($InputText) {\n"
-                    "    Add-Type -AssemblyName System.Speech;\n"
-                    "    $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;\n"
-                    "    $synth.SetOutputToWaveFile($OutputWav);\n"
-                    "    $synth.Speak($InputText);\n"
-                    "    $synth.Dispose();\n"
+                    "& { param($OutputWav)\n"
+                    "    $InputText = [Console]::In.ReadToEnd();\n"
+                    "    if ($InputText) {\n"
+                    "        Add-Type -AssemblyName System.Speech;\n"
+                    "        $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;\n"
+                    "        $synth.SetOutputToWaveFile($OutputWav);\n"
+                    "        $synth.Speak($InputText);\n"
+                    "        $synth.Dispose();\n"
+                    "    }\n"
                     "}"
                 )
                 process = subprocess.Popen(

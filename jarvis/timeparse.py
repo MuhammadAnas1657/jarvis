@@ -51,12 +51,17 @@ TIME_OF_DAY_DEFAULTS = {
 }
 
 # Precompiled regex patterns for optimal performance
-RE_MINUTES = re.compile(r'(\d+)\s*(?:minute|min|m)\s*(?:baad|after|later)', re.I)
-RE_HOURS = re.compile(r'(\d+)\s*(?:ghanta|ghante|hour|hours|hr|hrs)\s*(?:baad|after|later)', re.I)
+RE_COMPOUND_DURATION = re.compile(
+    r'(\d+|[a-zA-Z]+)\s*(?:ghanta|ghante|ghantay|hour|hours|hr|hrs)\s*(?:aur|and)?\s*(\d+|[a-zA-Z]+)\s*(?:minute|minutes|min|mins|m)\s*(?:baad|after|later)?',
+    re.I
+)
+RE_MINUTES = re.compile(r'(\d+)\s*(?:minute|minutes|min|mins|m)\s*(?:baad|after|later)', re.I)
+RE_HOURS = re.compile(r'(\d+)\s*(?:ghanta|ghante|ghantay|hour|hours|hr|hrs)\s*(?:baad|after|later)', re.I)
 RE_DAYS = re.compile(r'(\d+)\s*(?:din|days|day)\s*(?:baad|after|later)', re.I)
 RE_COLON_TIME = re.compile(r'(\d{1,2}):(\d{2})(?:\s*(?:baje|am|pm))?', re.I)
 RE_MODIFIER_TIME = re.compile(r'\b(saadhe|sawa|paunay|pone)\s+([a-zA-Z0-9]+)\s*(?:baje)?', re.I)
 RE_DIGIT_BAJE = re.compile(r'(\d{1,2})\s*(?:baje|am|pm)', re.I)
+RE_FRAC_DURATION = re.compile(r'\b(derh|dedh|dhai|dhaai)\s*(?:ghanta|ghante|ghantay|hour|hours|hr|hrs)(?:\s*(?:baad|after|later))?', re.I)
 
 
 def parse_relative_time(
@@ -149,11 +154,25 @@ def parse_time_with_analysis(
 
 
 def _parse_durations(text: str, now: datetime) -> Optional[datetime]:
-    min_match = RE_MINUTES.search(text)
-    if min_match:
-        return now + timedelta(minutes=int(min_match.group(1)))
+    # 1. Compound duration: e.g., "1 ghanta 30 minute baad", "do ghante 15 minute baad"
+    comp_match = RE_COMPOUND_DURATION.search(text)
+    if comp_match:
+        h_val = _resolve_hour_number(comp_match.group(1))
+        m_str = comp_match.group(2)
+        m_val = int(m_str) if m_str.isdigit() else URDU_NUMBERS.get(m_str.lower())
+        if h_val is not None and m_val is not None:
+            return now + timedelta(hours=h_val, minutes=m_val)
 
-    if "aadha ghanta" in text or "aadhe ghantay" in text or "half an hour" in text:
+    # 2. Fractional Urdu duration: "derh ghanta baad" (+90 min), "dhai ghante baad" (+150 min)
+    frac_match = RE_FRAC_DURATION.search(text)
+    if frac_match:
+        word = frac_match.group(1).lower()
+        if word in ("derh", "dedh"):
+            return now + timedelta(minutes=90)
+        if word in ("dhai", "dhaai"):
+            return now + timedelta(minutes=150)
+
+    if "aadha ghanta" in text or "aadhe ghantay" in text or "aadhe ghante" in text or "half an hour" in text:
         return now + timedelta(minutes=30)
 
     hr_match = RE_HOURS.search(text)
@@ -161,8 +180,16 @@ def _parse_durations(text: str, now: datetime) -> Optional[datetime]:
         return now + timedelta(hours=int(hr_match.group(1)))
 
     for word, num in URDU_NUMBERS.items():
-        if f"{word} ghanta" in text or f"{word} ghante" in text:
+        if re.search(rf'\b{word}\s+(?:ghanta|ghante|ghantay)\b', text):
             return now + timedelta(hours=num)
+
+    min_match = RE_MINUTES.search(text)
+    if min_match:
+        return now + timedelta(minutes=int(min_match.group(1)))
+
+    for word, num in URDU_NUMBERS.items():
+        if re.search(rf'\b{word}\s+(?:minute|minutes|min|mins)\s*(?:baad|after|later)\b', text):
+            return now + timedelta(minutes=num)
 
     days_match = RE_DAYS.search(text)
     if days_match:
@@ -174,6 +201,22 @@ def _parse_durations(text: str, now: datetime) -> Optional[datetime]:
 def _parse_target_date(text: str, now: datetime) -> Tuple[datetime.date, bool]:
     current_date = now.date()
 
+    # Check named weekdays first so "agle hafte <weekday>" resolves to that weekday next week
+    for day_name, target_weekday in URDU_WEEKDAYS.items():
+        pattern = rf'\b{day_name}\b'
+        if re.search(pattern, text):
+            days_ahead = target_weekday - current_date.weekday()
+            if days_ahead <= 0:
+                days_ahead += 7
+            if "agle hafte" in text or "aglay hafte" in text or "next week" in text:
+                # Named weekday in next week
+                days_to_next_monday = 7 - current_date.weekday()
+                days_ahead = days_to_next_monday + target_weekday
+            elif "agle" in text or "aglay" in text or "next" in text:
+                if days_ahead < 7:
+                    days_ahead += 7
+            return current_date + timedelta(days=days_ahead), True
+
     if "tarson" in text:
         return current_date + timedelta(days=3), True
     if "parson" in text:
@@ -182,31 +225,29 @@ def _parse_target_date(text: str, now: datetime) -> Tuple[datetime.date, bool]:
         return current_date + timedelta(days=1), True
     if "aaj" in text or "today" in text:
         return current_date, True
-    if "agle hafte" in text or "next week" in text:
+    if "agle hafte" in text or "aglay hafte" in text or "next week" in text:
         return current_date + timedelta(days=7), True
-
-    for day_name, target_weekday in URDU_WEEKDAYS.items():
-        pattern = rf'\b{day_name}\b'
-        if re.search(pattern, text):
-            days_ahead = target_weekday - current_date.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            if "agle" in text or "next" in text:
-                if days_ahead < 7:
-                    days_ahead += 7
-            return current_date + timedelta(days=days_ahead), True
 
     return current_date, False
 
 
 def _parse_target_time(text: str) -> Optional[time]:
-    is_pm_hint = any(w in text for w in ["dopahar", "sehpahar", "shaam", "raat", "pm", "afternoon", "evening", "night"])
+    # Check explicit midnight phrases first
+    if "aadhi raat" in text or "adhi raat" in text or "midnight" in text:
+        return time(0, 0)
+    if re.search(r'\b(?:12|barah)\s*baje\s*raat\b', text) or re.search(r'\braat\s*(?:ke\s*)?(?:12|barah)\s*baje\b', text):
+        return time(0, 0)
+
+    is_pm_hint = any(w in text for w in [
+        "dopahar", "sehpahar", "shaam", "maghrib", "raat", "isha",
+        "pm", "afternoon", "evening", "night"
+    ])
     is_am_hint = any(w in text for w in ["subah", "fajar", "am", "morning"])
 
-    if "derh baje" in text or "derh" in text:
+    if ("derh baje" in text or "dedh baje" in text or re.search(r'\b(?:derh|dedh)\b', text)) and not RE_FRAC_DURATION.search(text):
         hour = 13 if is_pm_hint else 1
         return time(hour, 30)
-    if "dhai baje" in text or "dhai" in text:
+    if ("dhai baje" in text or "dhaai baje" in text or re.search(r'\b(?:dhai|dhaai)\b', text)) and not RE_FRAC_DURATION.search(text):
         hour = 14 if (is_pm_hint or not is_am_hint) else 2
         return time(hour, 30)
 
@@ -242,7 +283,7 @@ def _parse_target_time(text: str) -> Optional[time]:
         return time(h, 0)
 
     for word, val in URDU_NUMBERS.items():
-        if f"{word} baje" in text:
+        if re.search(rf'\b{word}\s*baje\b', text):
             h = _adjust_ampm(val, text, is_pm_hint, is_am_hint)
             return time(h, 0)
 
@@ -262,6 +303,8 @@ def _resolve_hour_number(s: str) -> Optional[int]:
 def _adjust_ampm(hour: int, text: str, is_pm_hint: bool, is_am_hint: bool) -> int:
     if hour > 12:
         return hour
+    if "raat" in text and hour == 12:
+        return 0
     if "pm" in text and hour < 12:
         return hour + 12
     if "am" in text and hour == 12:

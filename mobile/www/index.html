@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#050914">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Jarvis 24/7 Buddy &bull; Standalone Mobile App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Built-in offline fallback CSS so the mobile app looks sharp even with zero internet */
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 12px;
+      background-color: #050914;
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 60%),
+        linear-gradient(rgba(0, 240, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 28px 28px;
+      color: #f8fafc;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass-card {
+      background: rgba(10, 18, 36, 0.88);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(16px);
+    }
+    .hidden {
+      display: none !important;
+    }
+    input, select, textarea {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    button {
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: 700;
+      padding: 8px 14px;
+      font-size: 12px;
+      border: none;
+    }
+    .btn-cyan {
+      background: #06b6d4;
+      color: #020617;
+    }
+    .btn-emerald {
+      background: #10b981;
+      color: #020617;
+    }
+    .btn-rose {
+      background: #f43f5e;
+      color: #ffffff;
+    }
+    .btn-slate {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+    }
+    .mobile-tab-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .mobile-tab-bar button {
+      white-space: nowrap;
+      flex: 1;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 antialiased">
+  <div class="max-w-5xl mx-auto space-y-4">
+
+    <!-- ======================================================================
+         MOBILE BACKEND SERVER CONNECTION BAR (Capacitor & LAN/VPS Sync)
+         ====================================================================== -->
+    <div class="glass-card rounded-2xl p-4 space-y-3 border border-cyan-500/40">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <img src="/static/jarvis-emblem-dark.png" alt="JARVIS" class="w-9 h-9 object-contain select-none">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base md:text-lg font-extrabold tracking-wide text-white">JARVIS 24/7 BUDDY</h1>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono">
+                CAPACITOR APK + OFFLINE IDB
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400">Connects to your Python + Native PostgreSQL Server &bull; Works 100% Offline</p>
+          </div>
+        </div>
+
+        <div id="connectionStatusBadge" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
+          <span id="connectionStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="connectionStatusText">Checking Server...</span>
+        </div>
+      </div>
+
+      <!-- Python Backend Server URL Configuration -->
+      <div class="flex flex-col sm:flex-row gap-2 pt-1">
+        <div class="flex-1 flex items-center gap-2">
+          <label for="mobileBackendUrlInput" class="text-xs font-mono text-cyan-300 whitespace-nowrap">Backend URL:</label>
+          <input id="mobileBackendUrlInput" type="url"
+            placeholder="http://192.168.1.100:8000 or https://your-vps-domain.com"
+            class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-400">
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="saveBackendServerUrl()" class="btn-cyan px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition">
+            Save &amp; Sync
+          </button>
+          <button onclick="syncAllData()" class="btn-slate px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-semibold transition">
+            Sync Now
+          </button>
+        </div>
+      </div>
+      <div id="mobileSyncMetaText" class="text-[11px] text-slate-400 font-mono">
+        Local Cache: IndexedDB (<code class="text-cyan-300">jarvis_offline_pwa_db</code>) + localStorage &bull; 5s Offline Watchdog Active
+      </div>
+    </div>
+
+    <!-- DUE REMINDER LIVE BANNER -->
+    <div id="dueAlertBanner" class="hidden glass-card p-4 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-200 flex items-center justify-between gap-4 shadow-lg">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+        <span id="dueAlertText" class="text-sm font-bold">Reminder Due Now!</span>
+      </div>
+      <button onclick="dismissDueAlertBanner()" class="px-3 py-1 rounded-lg bg-amber-400 text-slate-950 text-xs font-bold">Dismiss</button>
+    </div>
+
+    <!-- 5-TAB NAVIGATION -->
+    <nav class="glass-card rounded-2xl p-1.5 mobile-tab-bar text-xs font-semibold">
+      <button id="nav-btn-today" onclick="switchDashboardTab('today')" class="py-2.5 px-3 rounded-xl border bg-cyan-500/20 border-cyan-400 text-cyan-300 transition text-center">
+        1. Today &amp; Audit
+      </button>
+      <button id="nav-btn-routine" onclick="switchDashboardTab('routine')" class="py-2.5 px-3 rounded-xl border border-transparent text-slate-400 hover:text-white transition text-center">
+        2. Weekly Routine
+      </button>
+      <button id="nav-btn-alarm" onclick="switchDashboardTab('alarm')" class="py-2.5 px-3 rounded-xl border border-transparent text-slate-400 hover:text-white transition text-center">
+        3. Wake-Up Alarm
+      </button>
+      <button id="nav-btn-nightly" onclick="switchDashboardTab('nightly')" class="py-2.5 px-3 rounded-xl border border-transparent text-slate-400 hover:text-white transition text-center">
+        4. Nightly &amp; Course
+      </button>
+      <button id="nav-btn-business" onclick="switchDashboardTab('business')" class="py-2.5 px-3 rounded-xl border border-transparent text-slate-400 hover:text-white transition text-center">
+        5. Business Buddy
+      </button>
+    </nav>
+
+    <!-- ======================================================================
+         SECTION 1: TODAY, VOICE/TEXT CAPTURE & HARD ROUTINE AUDIT
+         ====================================================================== -->
+    <main id="section-today" class="space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white">Quick Voice / Text Task Capture (Roman-Urdu &amp; English)</h2>
+            <p class="text-xs text-slate-400">Stages tasks into the Pending Confirmation Gate (or queues locally when offline).</p>
+          </div>
+          <button id="mobileVoiceRecordBtn" onclick="toggleMobileVoiceCapture()" class="btn-rose px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-400 text-rose-300 text-xs font-bold">
+            🎤 Speak Task
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input id="quickCaptureInput" type="text"
+            placeholder="e.g., 'kal subah 9 baje client meeting' or 'in 45 minutes review PR'"
+            class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-xs text-white">
+          <button onclick="submitQuickCapture()" class="btn-cyan px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs">
+            Stage Task for Confirmation
+          </button>
+        </div>
+        <div id="mobileCaptureStatus" class="hidden text-xs text-cyan-300 font-mono"></div>
+      </div>
+
+      <!-- Pending Confirmation Gate & Active Offline-Cached Schedule -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300">Pending Confirmation Queue</h3>
+            <span id="pendingCountBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">0 Pending</span>
+          </div>
+          <div id="pendingRemindersList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Active Confirmed Schedule (Cached Offline)</h3>
+            <span id="confirmedCountBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">0 Confirmed</span>
+          </div>
+          <div id="confirmedRemindersList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Advisory Hard Routine Audit -->
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div>
+            <h2 class="text-sm font-bold text-white">Advisory Hard Routine Audit</h2>
+            <p class="text-xs text-slate-400">Audits proposed tasks against your Fixed Weekly Routine &amp; True Free Hours (+15% buffer).</p>
+          </div>
+          <button onclick="runHardRoutineAudit()" class="btn-cyan px-3.5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-bold text-xs">
+            Run Routine Audit
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <input id="auditTaskTitle" type="text" placeholder="Task title" class="sm:col-span-5 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="auditTaskMinutes" type="number" value="60" min="5" max="480" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="auditTaskPrefTime" type="text" placeholder="HH:MM" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <select id="auditTaskPriority" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-2.5 py-2 text-xs text-white">
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="normal" selected>Normal</option>
+            <option value="low">Low</option>
+          </select>
+          <button onclick="addProposedAuditTask()" class="btn-slate sm:col-span-1 rounded-xl bg-slate-800 border border-slate-600 text-xs font-bold text-cyan-300 py-2">
+            + Add
+          </button>
+        </div>
+
+        <div id="proposedAuditTasksList" class="space-y-1.5"></div>
+
+        <div id="auditResultPanel" class="hidden space-y-3 pt-3 border-t border-slate-800">
+          <div id="auditMetricsSummary" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+          <div id="auditWarningsList" class="space-y-1"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-emerald-500/30 space-y-2">
+              <div class="text-xs font-bold text-emerald-300">Core Schedule (Fits True Free Hours)</div>
+              <div id="auditCoreScheduleList" class="space-y-1.5"></div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-amber-500/30 space-y-2">
+              <div class="text-xs font-bold text-amber-300">Overflow Tasks (Deferred)</div>
+              <div id="auditOverflowList" class="space-y-1.5"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <label class="flex items-center gap-2 text-xs text-slate-300">
+              <input id="commitUserConfirmedCheck" type="checkbox" checked>
+              <span>Confirm before scheduling</span>
+            </label>
+            <div class="flex gap-2">
+              <button onclick="commitRoutinePlan('core_only')" class="btn-emerald px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">
+                Accept Core Structure
+              </button>
+              <button onclick="commitRoutinePlan('force_all')" class="btn-slate px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 font-bold text-xs">
+                Force-Schedule All
+              </button>
+            </div>
+          </div>
+          <div id="commitRoutineStatus" class="hidden text-xs text-cyan-300 font-mono"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ======================================================================
+         SECTION 2: FIXED WEEKLY ROUTINE
+         ====================================================================== -->
+    <section id="section-routine" class="hidden space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div>
+            <h2 class="text-sm font-bold text-white">Fixed Weekly Routine &amp; True Free Hours</h2>
+            <p class="text-xs text-slate-400">Cached offline in IndexedDB so you always see your locked daily blocks.</p>
+          </div>
+          <div id="weeklyTrueFreeSummary" class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/30">
+            Calculating True Free Hours...
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <select id="routineDayInput" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <option value="Daily">Daily</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+          <input id="routineTitleInput" type="text" placeholder="Block Title (e.g. Deep Work / Gym)" class="sm:col-span-4 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="routineStartInput" type="time" value="09:00" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="routineEndInput" type="time" value="11:00" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="routineCategoryInput" type="text" value="Core Routine" class="sm:col-span-1 rounded-xl bg-slate-900 border border-slate-700 px-2 py-2 text-xs text-white">
+          <button onclick="addWeeklyRoutineBlock()" class="btn-cyan sm:col-span-1 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs py-2">
+            Save
+          </button>
+        </div>
+
+        <div id="weeklyRoutineList" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SECTION 3: STRICT PROOF-OF-WAKE ALARM ("Anas, wake up!")
+         ====================================================================== -->
+    <section id="section-alarm" class="hidden space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div>
+            <h2 class="text-sm font-bold text-white">Strict Proof-of-Wake Voice Alarm ("Anas, wake up!")</h2>
+            <p class="text-xs text-slate-400">Runs 100% offline. Repeats voice synthesis every 15 seconds until you verify wakefulness.</p>
+          </div>
+          <button onclick="triggerTestWakeAlarm()" class="btn-rose px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs">
+            🔊 Trigger "Anas, wake up!" Now
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <input id="alarmTimeInput" type="time" value="06:00" class="sm:col-span-2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="alarmLabelInput" type="text" placeholder="Alarm Label (e.g. Fajr &amp; Deep Work)" class="sm:col-span-4 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <input id="alarmFirstTaskInput" type="text" placeholder="First Task Prompt (spoken in wake loop)" class="sm:col-span-4 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          <button onclick="createAlarmEntry()" class="btn-cyan sm:col-span-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs py-2">
+            + Set Strict Alarm
+          </button>
+        </div>
+
+        <div id="alarmsListContainer" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SECTION 4: NIGHTLY AUDIT & COURSE LEARNING
+         ====================================================================== -->
+    <section id="section-nightly" class="hidden space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h2 class="text-sm font-bold text-white">Nightly Task Completion &amp; "What I Learned Today"</h2>
+          <span id="nightlyDisciplineScoreBadge" class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono">
+            Discipline Score: --
+          </span>
+        </div>
+
+        <div id="nightlyTaskChecklist" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <select id="nightlyCourseSelect" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+              <option value="1">AI Systems &amp; LLM Engineering</option>
+            </select>
+            <input id="nightlyTopicInput" type="text" placeholder="Lesson / Module Topic" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+          </div>
+          <textarea id="nightlyReflectionInput" rows="3" placeholder="Speak or type what you learned today..." class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3 text-xs text-white"></textarea>
+          <button onclick="submitNightlyAudit()" class="btn-cyan px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs">
+            Submit Nightly Audit &amp; Generate 2-Question Quiz
+          </button>
+        </div>
+
+        <pre id="nightlyStructuredNotesOutput" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-300 whitespace-pre-wrap font-mono"></pre>
+        <div id="nightlyRecallQuizContainer" class="space-y-2 pt-2"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SECTION 5: BUSINESS & SMALL-TASK BUDDY
+         ====================================================================== -->
+    <section id="section-business" class="hidden space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h2 class="text-sm font-bold text-white">Client &amp; Project Priority Tracker</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input id="bizClientInput" type="text" placeholder="Client Name" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <input id="bizTitleInput" type="text" placeholder="Deliverable Title" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <input id="bizDeadlineInput" type="date" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <div class="flex gap-2">
+              <input id="bizHoursInput" type="number" value="4" min="0.5" step="0.5" class="w-1/2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+              <input id="bizImpactInput" type="number" value="8" min="1" max="10" class="w-1/2 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+          <button onclick="addBusinessDeliverable()" class="btn-cyan w-full py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs">
+            + Add &amp; Rank Client Deliverable
+          </button>
+          <div id="businessDeliverablesList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h2 class="text-sm font-bold text-white">Autonomous Small-Task Buddy</h2>
+          <select id="smallTaskTypeInput" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <option value="draft">Draft (Client Proposal / Message)</option>
+            <option value="breakdown">Breakdown (Project Milestones)</option>
+            <option value="sop">SOP (Standard Operating Procedure)</option>
+            <option value="research">Research (Technical Comparison)</option>
+          </select>
+          <textarea id="smallTaskPromptInput" rows="3" placeholder="Describe the small task for Jarvis to prepare..." class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3 text-xs text-white"></textarea>
+          <button onclick="runSmallTaskBuddy()" class="btn-cyan w-full py-2 rounded-xl bg-purple-500 text-slate-950 font-bold text-xs">
+            Run Autonomous Small-Task Worker
+          </button>
+          <div id="smallTasksStagedList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========================================================================
+       STRICT PROOF-OF-WAKE CHALLENGE MODAL ("Anas, wake up!")
+       ======================================================================== -->
+  <div id="wakeModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="max-w-lg w-full glass-card rounded-3xl bg-slate-950 border-2 border-rose-500 p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold uppercase animate-pulse">
+          Strict Proof-of-Wake Loop Active (15s Voice Repeat)
+        </span>
+        <span id="wakeModalTime" class="text-sm font-mono text-rose-400 font-bold">06:00</span>
+      </div>
+
+      <h2 class="text-2xl font-extrabold text-white">"Anas, wake up!"</h2>
+      <p class="text-xs text-slate-300">
+        Your first scheduled task of the day is:
+        <strong id="wakeModalTaskPrompt" class="text-cyan-300 block mt-1 text-sm">Review Core Schedule &amp; Start Priority Block</strong>
+      </p>
+
+      <div class="space-y-3 pt-2">
+        <input id="wakeVerificationInput" type="text"
+          placeholder="Type or speak wake verification phrase (e.g., 'I am awake and ready')"
+          class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-xs text-white">
+
+        <label class="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+          <input id="wakeFirstTaskCheck" type="checkbox" class="rounded text-emerald-400">
+          <span>I confirm I am out of bed and starting my first task now.</span>
+        </label>
+
+        <div id="wakeVerifyStatus" class="text-xs text-slate-400"></div>
+
+        <button onclick="submitWakeVerification()" class="btn-emerald w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider transition">
+          Complete Proof-of-Wake &amp; Acknowledge Alarm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standalone Mobile Bridge & Offline Engine -->
+  <script src="./mobile-bridge.js"></script>
+</body>
+</html>

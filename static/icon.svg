@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#0d1f3c"/>
+      <stop offset="100%" stop-color="#050914"/>
+    </radialGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+  <rect x="18" y="18" width="476" height="476" rx="92" fill="none" stroke="#00f0ff" stroke-opacity="0.25" stroke-width="4"/>
+  <!-- Outer HUD Arc -->
+  <circle cx="256" cy="256" r="184" fill="none" stroke="url(#cyanGrad)" stroke-width="16" stroke-dasharray="180 40 90 40"/>
+  <!-- Middle Telemetry Ring -->
+  <circle cx="256" cy="256" r="136" fill="none" stroke="#38bdf8" stroke-width="8" stroke-dasharray="24 18" stroke-opacity="0.8"/>
+  <!-- Inner Core -->
+  <circle cx="256" cy="256" r="88" fill="#00f0ff" fill-opacity="0.12" stroke="#00f0ff" stroke-width="6"/>
+  <!-- Stylized J Monogram -->
+  <path d="M276 176 V284 C276 318 250 338 218 338 C196 338 180 326 172 308" fill="none" stroke="#f8fafc" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="276" cy="144" r="14" fill="#00f0ff"/>
+</svg>

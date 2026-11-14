@@ -1,0 +1,19 @@
+{
+  "name": "jarvis-mobile-apk",
+  "version": "2.0.0",
+  "description": "Jarvis 24/7 Personal Accountability & Business Buddy — Standalone Capacitor JS Mobile App (Offline-First + Native PostgreSQL Backend Sync)",
+  "private": true,
+  "scripts": {
+    "sync": "npx cap sync",
+    "open:android": "npx cap open android",
+    "build:apk": "powershell -ExecutionPolicy Bypass -File ./build_apk.ps1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/local-notifications": "^6.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.0"
+  }
+}

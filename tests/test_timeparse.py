@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pytest
-from jarvis.timeparse import parse_relative_time, DEFAULT_TIMEZONE
+from jarvis.timeparse import parse_relative_time, parse_time_with_analysis, DEFAULT_TIMEZONE
 
 
 @pytest.fixture
@@ -78,3 +78,64 @@ def test_english_standard(fixed_now):
     assert dt.day == 29
     assert dt.hour == 15
 
+
+def test_midnight_12_baje_raat_and_aadhi_raat(fixed_now):
+    # "12 baje raat" and "aadhi raat" -> 00:00:00
+    dt1 = parse_relative_time("kal 12 baje raat server backup", base_dt=fixed_now)
+    assert dt1 is not None
+    assert dt1.hour == 0
+    assert dt1.minute == 0
+    assert dt1.second == 0
+
+    dt2 = parse_relative_time("kal aadhi raat deploy", base_dt=fixed_now)
+    assert dt2 is not None
+    assert dt2.hour == 0
+    assert dt2.minute == 0
+    assert dt2.second == 0
+
+
+def test_agle_hafte_named_weekday_precedence(fixed_now):
+    # Base is Wednesday 2026-10-28.
+    # "agle hafte mangal" -> Next week's Tuesday = 2026-11-03 (not generic +7 days Wednesday)
+    dt_tue = parse_relative_time("agle hafte mangal 11 baje client call", base_dt=fixed_now)
+    assert dt_tue is not None
+    assert dt_tue.weekday() == 1  # Tuesday
+    assert (dt_tue.date() - fixed_now.date()).days == 6
+
+    # "agle hafte jumma" -> Next week's Friday = 2026-11-06
+    dt_fri = parse_relative_time("agle hafte jumma shaam 5 baje", base_dt=fixed_now)
+    assert dt_fri is not None
+    assert dt_fri.weekday() == 4  # Friday
+    assert dt_fri.hour == 17
+
+
+def test_compound_and_fractional_urdu_durations(fixed_now):
+    # "1 ghanta 30 minute baad" -> +90 min (11:30 PKT)
+    dt_comp = parse_relative_time("1 ghanta 30 minute baad reminder", base_dt=fixed_now)
+    assert dt_comp is not None
+    assert dt_comp == fixed_now + timedelta(minutes=90)
+
+    # "derh ghanta baad" -> +90 min (11:30 PKT)
+    dt_derh = parse_relative_time("derh ghanta baad call client", base_dt=fixed_now)
+    assert dt_derh is not None
+    assert dt_derh == fixed_now + timedelta(minutes=90)
+
+    # "dhai ghante baad" -> +150 min (12:30 PKT)
+    dt_dhai = parse_relative_time("dhai ghante baad lunch break", base_dt=fixed_now)
+    assert dt_dhai is not None
+    assert dt_dhai == fixed_now + timedelta(minutes=150)
+
+
+def test_isha_and_maghrib_pm_hints(fixed_now):
+    # "isha 9 baje" -> 21:00:00
+    dt_isha = parse_relative_time("aaj isha 9 baje study session", base_dt=fixed_now)
+    assert dt_isha is not None
+    assert dt_isha.hour == 21
+    assert dt_isha.minute == 0
+    assert dt_isha.second == 0
+
+    # "maghrib 7 baje" -> 19:00:00
+    dt_maghrib = parse_relative_time("kal maghrib 7 baje gym", base_dt=fixed_now)
+    assert dt_maghrib is not None
+    assert dt_maghrib.hour == 19
+    assert dt_maghrib.minute == 0

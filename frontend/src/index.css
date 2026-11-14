@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  html.light body {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+}

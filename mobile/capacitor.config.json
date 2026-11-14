@@ -1,0 +1,20 @@
+{
+  "appId": "com.anas.jarvis",
+  "appName": "JARVIS",
+  "webDir": "../frontend/dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#00F0FF",
+      "sound": "beep.wav"
+    }
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

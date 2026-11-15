@@ -39,6 +39,9 @@ export default defineConfig({
         ws: true,
         configure: (proxy) => {
           proxy.on('error', () => {});
+          proxy.on('open', (proxySocket) => {
+            proxySocket.on('error', () => {});
+          });
           proxy.on('proxyReqWs', (_proxyReq, _req, socket) => {
             socket.on('error', () => {});
           });

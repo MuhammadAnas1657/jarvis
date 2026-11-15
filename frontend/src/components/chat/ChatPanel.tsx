@@ -1,5 +1,16 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { Loader2, Mic, Send, Sparkles, Trash2, Volume2, VolumeX } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  MessageSquare,
+  Mic,
+  Send,
+  Sparkles,
+  Trash2,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
 import { useVoice } from '../../hooks/useVoice';
 import { useJarvis } from '../../hooks/useJarvis';
@@ -8,6 +19,9 @@ import { useSkills } from '../../queries/sync';
 export function ChatPanel() {
   const [input, setInput] = useState('');
   const [showSkills, setShowSkills] = useState(false);
+  const isChatOpen = useAppStore((s) => s.isChatOpen);
+  const toggleChatOpen = useAppStore((s) => s.toggleChatOpen);
+  const setChatOpen = useAppStore((s) => s.setChatOpen);
   const messages = useAppStore((s) => s.messages);
   const clearMessages = useAppStore((s) => s.clearMessages);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -21,14 +35,17 @@ export function ChatPanel() {
   );
 
   const voice = useVoice((transcript) => {
+    setChatOpen(true);
     void sendMessage(transcript, { viaVoice: true });
   });
 
   const { sendMessage, isSending } = useJarvis(voice.speak);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+    if (isChatOpen) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages.length, isChatOpen]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -41,18 +58,41 @@ export function ChatPanel() {
   return (
     <section
       id="chat"
-      className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 shadow-lg md:p-5 light:border-slate-200 light:bg-white"
+      className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 shadow-lg transition-all md:p-5 light:border-slate-200 light:bg-white"
     >
-      <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-800/70 pb-3 light:border-slate-200">
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">
-            JARVIS Chat &amp; Push-to-Talk Voice
-          </h2>
-          <p className="text-xs text-slate-400">
-            Hold Mic to speak (auto-speaks reply) • Type for silent text mode
-          </p>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleChatOpen}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleChatOpen()}
+        className={`flex cursor-pointer select-none items-center justify-between gap-2 ${
+          isChatOpen ? 'mb-3 border-b border-slate-800/70 pb-3 light:border-slate-200' : ''
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/15 text-sky-400">
+            <MessageSquare className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold tracking-tight">
+                JARVIS Chat &amp; Push-to-Talk Voice
+              </h2>
+              <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-300 light:bg-slate-100 light:text-slate-600">
+                {messages.length}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">
+              {isChatOpen
+                ? 'Hold Mic to speak (auto-speaks reply) • Type for silent text mode'
+                : 'Click here to expand chat & voice assistant'}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {voice.isSpeaking && (
             <button
               type="button"
@@ -63,16 +103,29 @@ export function ChatPanel() {
               Stop Voice
             </button>
           )}
+          {isChatOpen && (
+            <button
+              type="button"
+              onClick={clearMessages}
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200 light:border-slate-300 light:hover:bg-slate-100"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear
+            </button>
+          )}
           <button
             type="button"
-            onClick={clearMessages}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200 light:border-slate-300 light:hover:bg-slate-100"
+            onClick={toggleChatOpen}
+            className="rounded-lg border border-slate-700 p-1.5 text-slate-300 hover:bg-slate-800 light:border-slate-300 light:text-slate-700 light:hover:bg-slate-100"
+            aria-label={isChatOpen ? 'Collapse chat' : 'Expand chat'}
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            Clear
+            {isChatOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
         </div>
       </div>
+
+      {isChatOpen && (
+        <>
 
       {/* Messages area */}
       <div className="h-80 space-y-3 overflow-y-auto pr-1">
@@ -209,6 +262,8 @@ export function ChatPanel() {
           <span className="hidden sm:inline">Send</span>
         </button>
       </form>
+        </>
+      )}
     </section>
   );
 }

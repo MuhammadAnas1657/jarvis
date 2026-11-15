@@ -22,6 +22,7 @@ import {
 } from '../../queries/sync';
 import { useAppStore } from '../../stores/appStore';
 import { MobileInstallButtonAndModal } from '../modals/MobileInstallModal';
+import { AddReminderButton, AddRoutineBlockButton } from '../modals/QuickAddModals';
 import { ProjectsLearningsSection } from './ProjectsLearningsSection';
 
 const DAYS = [
@@ -151,13 +152,14 @@ export function DashboardSections() {
         id="routine"
         className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 light:border-slate-200 light:bg-white"
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-semibold">7-Day Fixed Routine &amp; Extra Work</h2>
             <p className="text-xs text-slate-400">
               Check off items directly or tell JARVIS via voice/chat — synced live via WebSocket
             </p>
           </div>
+          <AddRoutineBlockButton />
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -264,11 +266,14 @@ export function DashboardSections() {
         id="reminders"
         className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 light:border-slate-200 light:bg-white"
       >
-        <div className="mb-4 flex items-center gap-2">
-          <Bell className="h-5 w-5 text-sky-400" />
-          <h2 className="text-base font-semibold">
-            Active Reminders &amp; Deadlines ({activeReminders.length})
-          </h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-sky-400" />
+            <h2 className="text-base font-semibold">
+              Active Reminders &amp; Deadlines ({activeReminders.length})
+            </h2>
+          </div>
+          <AddReminderButton />
         </div>
 
         {activeReminders.length === 0 ? (

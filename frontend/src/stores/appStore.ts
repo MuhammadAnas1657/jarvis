@@ -3,12 +3,17 @@ import type { ChatMessage, JarvisAction } from '../types/jarvis';
 
 interface AppState {
   theme: 'dark' | 'light';
+  isChatOpen: boolean;
+  isSidebarCollapsed: boolean;
   messages: ChatMessage[];
   pendingAction: JarvisAction | null;
   isModalOpen: boolean;
   isSending: boolean;
   setTheme: (theme: 'dark' | 'light') => void;
   toggleTheme: () => void;
+  setChatOpen: (open: boolean) => void;
+  toggleChatOpen: () => void;
+  toggleSidebarCollapsed: () => void;
   addMessage: (msg: ChatMessage) => void;
   clearMessages: () => void;
   openConfirmation: (action: JarvisAction) => void;
@@ -27,6 +32,8 @@ if (typeof document !== 'undefined') {
 
 export const useAppStore = create<AppState>((set) => ({
   theme: savedTheme,
+  isChatOpen: false,
+  isSidebarCollapsed: false,
   messages: [
     {
       id: 'welcome-1',
@@ -53,6 +60,9 @@ export const useAppStore = create<AppState>((set) => ({
       document.documentElement.classList.toggle('light', next === 'light');
       return { theme: next };
     }),
+  setChatOpen: (isChatOpen) => set({ isChatOpen }),
+  toggleChatOpen: () => set((s) => ({ isChatOpen: !s.isChatOpen })),
+  toggleSidebarCollapsed: () => set((s) => ({ isSidebarCollapsed: !s.isSidebarCollapsed })),
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
   clearMessages: () => set({ messages: [] }),
   openConfirmation: (action) => set({ pendingAction: action, isModalOpen: true }),
